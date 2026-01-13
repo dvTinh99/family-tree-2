@@ -12,7 +12,6 @@ const selectedPerson = ref('')
 const modalVisible = ref(false)
 const currentRelation = ref('')
 
-
 import { applyLayout } from '../utils/familyTreeLayout'
 
 interface Person {
@@ -105,7 +104,6 @@ function openRelationModal(relation: string, personId: string) {
   selectedPerson.value = personId
   modalVisible.value = true
 }
-
 
 function addRelation(relation: string, data: any) {
   const newId = `${Date.now()}`
