@@ -1,50 +1,32 @@
 import dagre from 'dagre'
-import { Node } from '@vue-flow/core'
+import type { Node, Edge } from '@vue-flow/core'
 
 const NODE_WIDTH = 180
 const NODE_HEIGHT = 90
-const LEVEL_GAP = 120
+const RANK_SEP = 100
 
-/**
- * Tạo layout tự động theo thế hệ
- * @param nodes VueFlow Nodes
- * @param edges VueFlow Edges
- * @returns new nodes with calculated position
- */
-export function layoutFamilyTree<T = any>(
-  nodes: Node<T>[],
-  edges: { source: string; target: string }[]
-): Node<T>[] {
+export function applyLayout(nodes: Node[], edges: Edge[]): { nodes: Node[]; edges: Edge[] } {
   const g = new dagre.graphlib.Graph()
+  g.setGraph({ rankdir: 'TB', nodesep: 50, ranksep: RANK_SEP })
   g.setDefaultEdgeLabel(() => ({}))
-  g.setGraph({
-    rankdir: 'TB',
-    nodesep: 40,
-    ranksep: LEVEL_GAP,
-  })
 
-  nodes.forEach(node => {
-    g.setNode(node.id, {
-      width: NODE_WIDTH,
-      height: NODE_HEIGHT,
-    })
+  nodes.forEach((n) => {
+    g.setNode(n.id, { width: NODE_WIDTH, height: NODE_HEIGHT })
   })
-
-  edges.forEach(edge => {
-    g.setEdge(edge.source, edge.target)
+  edges.forEach((e) => {
+    g.setEdge(e.source, e.target)
   })
 
   dagre.layout(g)
 
-  return nodes.map(node => {
-    const { x, y } = g.node(node.id)
+  const laidOutNodes = nodes.map((n) => {
+    const { x, y } = g.node(n.id)!
     return {
-      ...node,
-      position: {
-        x: x - NODE_WIDTH / 2,
-        y: y - NODE_HEIGHT / 2,
-      },
-      draggable: false,
+      ...n,
+      position: { x: x - NODE_WIDTH / 2, y: y - NODE_HEIGHT / 2 },
+      // 👉 DRAGGABLE stays true
     }
   })
+
+  return { nodes: laidOutNodes, edges }
 }
