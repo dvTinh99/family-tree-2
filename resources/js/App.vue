@@ -1,7 +1,5 @@
-<script setup lang="ts">
-import FamilyTree from './components/FamilyTree.vue'
-</script>
-
 <template>
-  <FamilyTree />
+  <!-- <div class="min-h-screen bg-slate-50"> -->
+    <router-view />
+  <!-- </div> -->
 </template>
