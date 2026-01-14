@@ -1,192 +1,121 @@
-<script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
-import { VueFlow, Node, Edge, useVueFlow } from '@vue-flow/core'
+<script setup>
+import { h, nextTick, onMounted, ref } from 'vue'
+import { Background } from '@vue-flow/background'
+import { MarkerType, useVueFlow, VueFlow } from '@vue-flow/core'
+import EdgeWithButton from '@/components/EdgeWithButton.vue'
+import CustomEdge from '@/components/CustomEdge.vue'
 import PersonNode from '@/components/nodes/PersonNode.vue'
-import NodeMenu from '@/components/NodeMenu.vue'
+import CustomEdgeLabel from '@/components/CustomEdgeLabel.vue'
+import { MiniMap } from '@vue-flow/minimap'
 
-const menuX = ref(0)
-const menuY = ref(0)
-const menuVisible = ref(false)
-const selectedPerson = ref('')
+import { nodesInit, edgesInit } from './initial-elements'
 
-const modalVisible = ref(false)
-const currentRelation = ref('')
+const nodes = ref([])
+const edges = ref([])
 
-import { applyLayout } from '../utils/familyTreeLayout'
+function addNode() {
+  const id = Date.now().toString()
 
-interface Person {
-  id: string
-  name: string
-  gender: string
-  birth?: string
-  death?: string
+  nodes.value.push({
+    id,
+    position: { x: 150, y: 50 },
+    data: { label: `Node ${id}` },
+  })
 }
 
 const { fitView } = useVueFlow()
-const nodes = ref<Node[]>([])
-const edges = ref<Edge[]>([])
-
-const nodeTypes = { person: PersonNode }
-
-function makeMarriageNode(a: string, b: string): Node {
-  return {
-    id: `m-${a}-${b}`,
-    type: 'default',
-    data: {},
-    position: { x: 0, y: 0 },
-  }
-}
-
 onMounted(async () => {
-  const people: Person[] = [
-    { id: '1', name: 'Ông A', gender: 'male', birth: '1950' },
-    { id: '2', name: 'Bố B', gender: 'male', birth: '1975' },
-    { id: '3', name: 'Mẹ C', gender: 'female', birth: '1978' },
-    { id: '4', name: 'Con D', gender: 'male', birth: '2000' },
-  ]
-
-  const relations = [{ parent1: '2', parent2: '3', child: '4' }]
-
-  const rawNodes: Node[] = people.map((p) => ({
-    id: p.id,
-    type: 'person',
-    data: p,
-    position: { x: 0, y: 0 },
-  }))
-
-  const rawEdges: Edge[] = []
-
-  relations.forEach((r) => {
-    const m = makeMarriageNode(r.parent1, r.parent2)
-    rawNodes.push(m)
-
-    rawEdges.push({
-      id: `e-${r.parent1}-${m.id}`,
-      source: r.parent1,
-      target: m.id,
-      type: 'smoothstep',
-    })
-    rawEdges.push({
-      id: `e-${r.parent2}-${m.id}`,
-      source: r.parent2,
-      target: m.id,
-      type: 'smoothstep',
-    })
-    rawEdges.push({ id: `e-${m.id}-${r.child}`, source: m.id, target: r.child, type: 'smoothstep' })
-  })
-
-  const { nodes: n, edges: e } = applyLayout(rawNodes, rawEdges)
-  nodes.value = n
-  edges.value = e
-
-  // wait DOM update then fit all nodes into view
+  nodes.value = nodesInit
+  edges.value = edgesInit
+  // wait for VueFlow to mount and DOM to update
   await nextTick()
   fitView({ padding: 0.12 })
 })
-
-// Khi chọn node
-function onSelectPerson(id: string, evt: MouseEvent) {
-  selectedPerson.value = id
-  menuVisible.value = true
-  menuX.value = evt.clientX
-  menuY.value = evt.clientY
-}
-
-function onChooseRelation(relation: string) {
-  menuVisible.value = false
-
-  // Mở modal form nhập tên + birth/death
-  openRelationModal(relation, selectedPerson.value)
-}
-
-/**
- * Opens the modal for adding a related person.
- * @param relation One of: 'child', 'father', 'mother', 'spouse'
- * @param personId The ID of the selected person node
- */
-function openRelationModal(relation: string, personId: string) {
-  currentRelation.value = relation
-  selectedPerson.value = personId
-  modalVisible.value = true
-}
-
-function addRelation(relation: string, data: any) {
-  const newId = `${Date.now()}`
-  nodes.value.push({
-    id: newId,
-    type: 'person',
-    data: {
-      name: data.name,
-      gender: relation === 'mother' ? 'female' : 'male',
-      birth: data.birth,
-      death: data.death,
-    },
-    position: { x: menuX.value, y: menuY.value },
-  })
-
-  // Tạo edge
-  if (relation === 'child') {
-    edges.value.push({
-      id: `e-${selectedPerson.value}-${newId}`,
-      source: selectedPerson.value,
-      target: newId,
-    })
-  }
-  if (relation === 'father' || relation === 'mother') {
-    edges.value.push({
-      id: `e-${newId}-${selectedPerson.value}`,
-      source: newId,
-      target: selectedPerson.value,
-    })
-  }
-  if (relation === 'spouse') {
-    edges.value.push({
-      id: `e-${selectedPerson.value}-${newId}`,
-      source: selectedPerson.value,
-      target: newId,
-      type: 'smoothstep',
-    })
-  }
-
-  // Auto layout lại
-  const { nodes: newNodes, edges: newEdges } = applyLayout(nodes.value, edges.value)
-  nodes.value = newNodes
-  edges.value = newEdges
-
-  // ensure viewport fits updated graph
-  nextTick().then(() => fitView({ padding: 0.12 }))
-}
 </script>
 
 <template>
-  <div class="h-full w-full">
-    <VueFlow
-      :nodes="nodes"
-      :edges="edges"
-      :node-types="nodeTypes"
-      fit-view
-      :nodes-draggable="true"
-      :pan-on-scroll="true"
-      :zoom-on-scroll="true"
-      :min-zoom="0.4"
-      :max-zoom="1.4"
-    />
+  <div class="h-screen w-screen">
+    <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init>
+      <template #edge-button="buttonEdgeProps">
+        <EdgeWithButton
+          :id="buttonEdgeProps.id"
+          :source-x="buttonEdgeProps.sourceX"
+          :source-y="buttonEdgeProps.sourceY"
+          :target-x="buttonEdgeProps.targetX"
+          :target-y="buttonEdgeProps.targetY"
+          :source-position="buttonEdgeProps.sourcePosition"
+          :target-position="buttonEdgeProps.targetPosition"
+          :marker-end="buttonEdgeProps.markerEnd"
+          :style="buttonEdgeProps.style"
+        />
+      </template>
 
-    <PersonNode
-      v-for="node in nodes"
-      :key="node.id"
-      :data="node.data"
-      @select-person="(id, ev) => onSelectPerson(id, ev)"
-    />
+      <template #edge-custom="customEdgeProps">
+        <CustomEdge
+          :id="customEdgeProps.id"
+          :source-x="customEdgeProps.sourceX"
+          :source-y="customEdgeProps.sourceY"
+          :target-x="customEdgeProps.targetX"
+          :target-y="customEdgeProps.targetY"
+          :source-position="customEdgeProps.sourcePosition"
+          :target-position="customEdgeProps.targetPosition"
+          :data="customEdgeProps.data"
+          :marker-end="customEdgeProps.markerEnd"
+          :style="customEdgeProps.style"
+        />
+      </template>
 
-    <NodeMenu :x="menuX" :y="menuY" :visible="menuVisible" @select-relation="onChooseRelation" />
+      <template #node-person="personNodeProps">
+        <PersonNode v-bind="personNodeProps" />
+      </template>
 
-    <AddPersonModal
-      v-if="modalVisible"
-      :relation="currentRelation"
-      :parentId="selectedPerson"
-      @submit="addRelation(currentRelation, $event)"
-      @close="modalVisible = false"
-    />
+      <Panel>
+        <button type="button" @click="addNode">Add a node</button>
+      </Panel>
+
+      <Background />
+      <MiniMap />
+    </VueFlow>
   </div>
 </template>
+<style scoped>
+@import 'https://cdn.jsdelivr.net/npm/@vue-flow/core@1.48.1/dist/style.css';
+@import 'https://cdn.jsdelivr.net/npm/@vue-flow/core@1.48.1/dist/theme-default.css';
+@import 'https://cdn.jsdelivr.net/npm/@vue-flow/controls@latest/dist/style.css';
+@import 'https://cdn.jsdelivr.net/npm/@vue-flow/minimap@latest/dist/style.css';
+@import 'https://cdn.jsdelivr.net/npm/@vue-flow/node-resizer@latest/dist/style.css';
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+}
+
+#app {
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+
+.vue-flow__minimap {
+  transform: scale(75%);
+  transform-origin: bottom right;
+}
+
+.edgebutton {
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.edgebutton:hover {
+  transform: scale(1.1);
+  transition: all ease 0.5s;
+  box-shadow:
+    0 0 0 2px #10b98180,
+    0 0 0 4px #10b981;
+}
+</style>
