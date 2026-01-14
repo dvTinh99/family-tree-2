@@ -1,0 +1,37 @@
+version: '3'
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - 8000:80
+    depends_on:
+      - mysql
+    networks:
+      - family-tree
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: tinhdoan
+      MYSQL_PASSWORD: tinhdoan
+    ports:
+      - 3310:3306
+    volumes:
+      - .docker/mysql_data:/var/lib/mysql
+    networks:
+      - family-tree
+  # mailcatcher:
+  #   image: schickling/mailcatcher
+  #   ports:
+  #     - "1080:1080"
+  #     - "1025:1025"
+  #   networks:
+  #     - family-tree
+networks:
+  family-tree:
+    external: true
