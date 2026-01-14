@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { VueFlow, Node, Edge } from '@vue-flow/core'
+import { ref, onMounted, nextTick } from 'vue'
+import { VueFlow, Node, Edge, useVueFlow } from '@vue-flow/core'
 import PersonNode from '@/components/nodes/PersonNode.vue'
 import NodeMenu from '@/components/NodeMenu.vue'
 
@@ -22,6 +22,7 @@ interface Person {
   death?: string
 }
 
+const { fitView } = useVueFlow()
 const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
 
@@ -77,6 +78,10 @@ onMounted(async () => {
   const { nodes: n, edges: e } = applyLayout(rawNodes, rawEdges)
   nodes.value = n
   edges.value = e
+
+  // wait DOM update then fit all nodes into view
+  await nextTick()
+  fitView({ padding: 0.12 })
 })
 
 // Khi chọn node
@@ -147,6 +152,9 @@ function addRelation(relation: string, data: any) {
   const { nodes: newNodes, edges: newEdges } = applyLayout(nodes.value, edges.value)
   nodes.value = newNodes
   edges.value = newEdges
+
+  // ensure viewport fits updated graph
+  nextTick().then(() => fitView({ padding: 0.12 }))
 }
 </script>
 
