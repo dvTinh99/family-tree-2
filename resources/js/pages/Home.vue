@@ -5,25 +5,16 @@ import { MarkerType, useVueFlow, VueFlow } from '@vue-flow/core'
 import EdgeWithButton from '@/components/EdgeWithButton.vue'
 import CustomEdge from '@/components/CustomEdge.vue'
 import PersonNode from '@/components/nodes/PersonNode.vue'
-import CustomEdgeLabel from '@/components/CustomEdgeLabel.vue'
 import { MiniMap } from '@vue-flow/minimap'
 import PersonModal from '@/components/PersonModal.vue'
-
+import { useLayout } from '@/composables/useLayout'
 import { nodesInit, edgesInit } from './initial-elements'
+import SearchPanel from '@/components/SearchPanel.vue'
+import { useCollapse } from '@/composables/useCollapse'
 
 const nodes = ref([])
 const edges = ref([])
 const selectedNodeId = ref(null)
-
-function addNode() {
-  const id = Date.now().toString()
-
-  nodes.value.push({
-    id,
-    position: { x: 150, y: 50 },
-    data: { label: `Node ${id}` },
-  })
-}
 
 const { fitView } = useVueFlow()
 onMounted(async () => {
@@ -214,75 +205,140 @@ function onNodeClick({ node }) {
   })
 }
 
-// hierarchical layout: BFS levels from roots (no incoming edges)
-function applyHierarchyLayout(nodesArr, edgesArr, hSpacing = 220, vSpacing = 140) {
-  const idToNode = new Map(nodesArr.map((n) => [n.id, { ...n }]))
+const { resetLayout } = useLayout(nodes, edges)
+const { toggleBranch, collapsedMap } = useCollapse(nodes, edges)
 
-  // incoming/outgoing maps
-  const incoming = new Map()
-  const outgoing = new Map()
-  edgesArr.forEach((e) => {
-    incoming.set(e.target, (incoming.get(e.target) || 0) + 1)
-    outgoing.set(e.source, (outgoing.get(e.source) || []).concat(e.target))
-  })
-
-  // find root nodes (no incoming)
-  let roots = nodesArr.filter((n) => !incoming.has(n.id)).map((n) => n.id)
-  if (roots.length === 0 && nodesArr.length > 0) roots = [nodesArr[0].id]
-
-  // BFS to assign level per node
-  const levels = new Map()
-  const q = []
-  roots.forEach((r) => {
-    levels.set(r, 0)
-    q.push(r)
-  })
+// return all descendant node ids (directed edges: source -> target)
+function getDescendants(startId) {
+  const out = new Map()
+  const q = [startId]
   while (q.length) {
-    const id = q.shift()
-    const lvl = levels.get(id)
-    const children = outgoing.get(id) || []
-    children.forEach((c) => {
-      if (!levels.has(c)) {
-        levels.set(c, lvl + 1)
-        q.push(c)
+    const cur = q.shift()
+    edges.value.forEach((e) => {
+      if (e.source === cur && !out.has(e.target) && e.target !== startId) {
+        out.set(e.target, true)
+        q.push(e.target)
       }
     })
   }
+  // remove startId itself if present
+  out.delete(startId)
+  return Array.from(out.keys())
+}
 
-  // ensure all nodes have a level
-  nodesArr.forEach((n) => {
-    if (!levels.has(n.id)) levels.set(n.id, 0)
-  })
+function collapseBranch(parentId) {
+  if (collapsedMap.value.has(parentId)) return
+  const descIds = getDescendants(parentId)
+  if (descIds.length === 0) return
 
-  // group by level then assign positions
-  const levelMap = new Map()
-  nodesArr.forEach((n) => {
-    const lvl = levels.get(n.id)
-    if (!levelMap.has(lvl)) levelMap.set(lvl, [])
-    levelMap.get(lvl).push(n.id)
-  })
+  // snapshot nodes & edges to restore later
+  const snapshotNodes = nodes.value.filter((n) => descIds.includes(n.id))
+  const snapshotEdges = edges.value.filter((e) => descIds.includes(e.source) || descIds.includes(e.target))
 
-  for (const [lvl, ids] of levelMap.entries()) {
-    const count = ids.length
-    ids.forEach((nodeId, idx) => {
-      const x = (idx - (count - 1) / 2) * hSpacing
-      const y = lvl * vSpacing
-      const node = idToNode.get(nodeId)
-      if (node) node.position = { x, y }
-    })
+  // remove descendant nodes & edges
+  nodes.value = nodes.value.filter((n) => !descIds.includes(n.id))
+  edges.value = edges.value.filter((e) => !(descIds.includes(e.source) || descIds.includes(e.target)))
+
+  // create a summary node that represents the collapsed branch
+  const summaryId = `collapsed-${parentId}-${Date.now().toString().slice(-4)}`
+  // position summary roughly below parent
+  const parent = nodes.value.find((n) => n.id === parentId) || { position: { x: 0, y: 0 } }
+  const summaryPos = { x: (parent.position?.x || 0) + 80, y: (parent.position?.y || 0) + 220 }
+
+  const summaryNode = {
+    id: summaryId,
+    type: 'person', // reuse a compact person node or you can create 'summary' node type
+    position: summaryPos,
+    data: {
+      name: `+${descIds.length} collapsed`,
+      _isSummary: true,
+      _count: descIds.length,
+    },
   }
+  nodes.value.push(summaryNode)
 
-  return Array.from(idToNode.values())
+  // connect parent -> summary
+  edges.value.push({
+    id: `e-${parentId}-${summaryId}`,
+    source: parentId,
+    target: summaryId,
+    type: 'smoothstep',
+    data: { relation: 'collapsed' },
+    sourceHandle: 'bottom-source',
+    targetHandle: 'top-target',
+  })
+
+  // mark parent collapsed flag
+  nodes.value = nodes.value.map((n) => (n.id === parentId ? { ...n, data: { ...(n.data || {}), _collapsed: true } } : n))
+
+  // save snapshot
+  collapsedMap.value.set(parentId, { nodes: snapshotNodes, edges: snapshotEdges, summaryId })
 }
 
-function resetLayout() {
-  nodes.value = applyHierarchyLayout(nodes.value, edges.value)
-  nextTick().then(() => fitView({ padding: 0.12 }))
+// expose toggle handler used by PersonNode slot
+function onToggleBranch(payload) {
+  toggleBranch(payload.sourceId || payload) // payload may be { sourceId } or id
 }
+// --- INSERT SEARCH LOGIC BELOW ---
+const searchName = ref('')
+const searchAge = ref('')
+
+function clearSearch() {
+  searchName.value = ''
+  searchAge.value = ''
+  // restore default visuals
+  clearSelection()
+}
+
+function performSearch() {
+  const q = (searchName.value || '').trim().toLowerCase()
+  const ageQ = searchAge.value ? parseInt(searchAge.value, 10) : NaN
+
+  // find matched nodes
+  const matched = nodes.value.filter((n) => {
+    const name = ((n.data && n.data.name) || n.label || '').toString().toLowerCase()
+    const nameMatch = q ? name.includes(q) : true
+
+    let ageMatch = true
+    if (!Number.isNaN(ageQ)) {
+      const birth = n.data?.birth
+      if (!birth) ageMatch = false
+      else {
+        const b = new Date(birth)
+        if (Number.isNaN(b.getTime())) ageMatch = false
+        else {
+          const age = Math.floor((Date.now() - b.getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+          ageMatch = age === ageQ
+        }
+      }
+    }
+
+    return nameMatch && ageMatch
+  })
+
+  const matchedIds = new Set(matched.map((m) => m.id))
+
+  // highlight matched nodes
+  nodes.value = nodes.value.map((n) => ({ ...n, data: { ...(n.data || {}), _highlight: matchedIds.has(n.id) } }))
+
+  // highlight edges that connect to matched nodes, dim others
+  edges.value = edges.value.map((e) => {
+    const related = matchedIds.has(e.source) || matchedIds.has(e.target)
+    const copy = { ...e }
+    if (related) copy.style = { ...(copy.style || {}), stroke: '#06b6d4', strokeWidth: 3, opacity: 1 }
+    else copy.style = { ...(copy.style || {}), opacity: 0.12 }
+    return copy
+  })
+
+  // clear selectedNodeId because search can select multiple
+  selectedNodeId.value = null
+}
+// --- END SEARCH LOGIC ---
 </script>
 
 <template>
   <div class="h-screen w-screen">
+    <SearchPanel @search="performSearch" @clear="clearSearch"/>
     <button @click="resetLayout" class="layout-reset-btn" title="Reset layout">
       ⤒ Reset layout
     </button>
@@ -330,7 +386,7 @@ function resetLayout() {
       </template>
 
       <template #node-person="personNodeProps">
-        <PersonNode v-bind="personNodeProps" @add-relation="onAddRelationIntent" />
+        <PersonNode v-bind="personNodeProps" @add-relation="onAddRelationIntent" @toggle-branch="onToggleBranch"/>
       </template>
 
       <Background />

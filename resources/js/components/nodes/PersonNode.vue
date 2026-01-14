@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
 import { NodeToolbar } from '@vue-flow/node-toolbar'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   id: String,
+  label: String,
   data: {
     type: Object,
     default: () => ({}),
   },
   selected: Boolean,
 })
-const emit = defineEmits(['add-relation'])
+const emit = defineEmits(['add-relation', 'add-relation', 'toggle-branch'])
 
-const name = computed(() => props.data?.name || 'Unknown')
+const name = computed(() => props.id || props.label || 'Unknown')
 const birth = computed(() => props.data?.birth || '')
 const avatar = computed(() => props.data?.avatar || 'https://i.pravatar.cc/80')
 const age = computed(() => {
@@ -24,8 +25,40 @@ const age = computed(() => {
   return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25))
 })
 
+const toolbarAction = ref([
+  {
+    title: 'something',
+    text: '👨',
+    action: () => emitAddRelation('father'),
+  },
+  {
+    title: 'something',
+    text: '👩',
+    action: () => emitAddRelation('mother'),
+  },
+  {
+    title: 'something',
+    text: '🧑',
+    action: () => emitAddRelation('sibling'),
+  },
+  {
+    title: 'something',
+    text: '👶',
+    action: () => emitAddRelation('child'),
+  },
+  {
+    title: 'something',
+    text: '💍',
+    action: () => emitAddRelation('spouse'),
+  },
+])
+
 function emitAddRelation(type: string) {
   emit('add-relation', { sourceId: props.id, relationType: type })
+}
+
+function emitToggleBranch() {
+  emit('toggle-branch', { sourceId: props.id })
 }
 </script>
 
@@ -66,11 +99,14 @@ function emitAddRelation(type: string) {
 
       <NodeToolbar :is-visible="data.toolbarVisible" :position="Position.Top">
         <div>
-          <button title="Add father" @click.stop="emitAddRelation('father')">👨</button>
-          <button title="Add mother" @click.stop="emitAddRelation('mother')">👩</button>
-          <button title="Add sibling" @click.stop="emitAddRelation('sibling')">🧑</button>
-          <button title="Add child" @click.stop="emitAddRelation('child')">👶</button>
-          <button title="Add spouse" @click.stop="emitAddRelation('spouse')">💍</button>
+          <button :title="action.title" @click.stop="action.action" v-for="action in toolbarAction">
+            {{ action.text }}
+          </button>
+
+          <!-- collapse/expand button -->
+            <button title="Toggle branch" @click.stop="emitToggleBranch" class="ml-2">
+            🔀
+            </button>
         </div>
       </NodeToolbar>
 
