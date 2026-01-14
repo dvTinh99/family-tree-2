@@ -233,11 +233,15 @@ function collapseBranch(parentId) {
 
   // snapshot nodes & edges to restore later
   const snapshotNodes = nodes.value.filter((n) => descIds.includes(n.id))
-  const snapshotEdges = edges.value.filter((e) => descIds.includes(e.source) || descIds.includes(e.target))
+  const snapshotEdges = edges.value.filter(
+    (e) => descIds.includes(e.source) || descIds.includes(e.target)
+  )
 
   // remove descendant nodes & edges
   nodes.value = nodes.value.filter((n) => !descIds.includes(n.id))
-  edges.value = edges.value.filter((e) => !(descIds.includes(e.source) || descIds.includes(e.target)))
+  edges.value = edges.value.filter(
+    (e) => !(descIds.includes(e.source) || descIds.includes(e.target))
+  )
 
   // create a summary node that represents the collapsed branch
   const summaryId = `collapsed-${parentId}-${Date.now().toString().slice(-4)}`
@@ -269,7 +273,9 @@ function collapseBranch(parentId) {
   })
 
   // mark parent collapsed flag
-  nodes.value = nodes.value.map((n) => (n.id === parentId ? { ...n, data: { ...(n.data || {}), _collapsed: true } } : n))
+  nodes.value = nodes.value.map((n) =>
+    n.id === parentId ? { ...n, data: { ...(n.data || {}), _collapsed: true } } : n
+  )
 
   // save snapshot
   collapsedMap.value.set(parentId, { nodes: snapshotNodes, edges: snapshotEdges, summaryId })
@@ -319,13 +325,17 @@ function performSearch() {
   const matchedIds = new Set(matched.map((m) => m.id))
 
   // highlight matched nodes
-  nodes.value = nodes.value.map((n) => ({ ...n, data: { ...(n.data || {}), _highlight: matchedIds.has(n.id) } }))
+  nodes.value = nodes.value.map((n) => ({
+    ...n,
+    data: { ...(n.data || {}), _highlight: matchedIds.has(n.id) },
+  }))
 
   // highlight edges that connect to matched nodes, dim others
   edges.value = edges.value.map((e) => {
     const related = matchedIds.has(e.source) || matchedIds.has(e.target)
     const copy = { ...e }
-    if (related) copy.style = { ...(copy.style || {}), stroke: '#06b6d4', strokeWidth: 3, opacity: 1 }
+    if (related)
+      copy.style = { ...(copy.style || {}), stroke: '#06b6d4', strokeWidth: 3, opacity: 1 }
     else copy.style = { ...(copy.style || {}), opacity: 0.12 }
     return copy
   })
@@ -338,7 +348,7 @@ function performSearch() {
 
 <template>
   <div class="h-screen w-screen">
-    <SearchPanel @search="performSearch" @clear="clearSearch"/>
+    <SearchPanel @search="performSearch" @clear="clearSearch" />
     <button @click="resetLayout" class="layout-reset-btn" title="Reset layout">
       ⤒ Reset layout
     </button>
@@ -386,7 +396,11 @@ function performSearch() {
       </template>
 
       <template #node-person="personNodeProps">
-        <PersonNode v-bind="personNodeProps" @add-relation="onAddRelationIntent" @toggle-branch="onToggleBranch"/>
+        <PersonNode
+          v-bind="personNodeProps"
+          @add-relation="onAddRelationIntent"
+          @toggle-branch="onToggleBranch"
+        />
       </template>
 
       <Background />

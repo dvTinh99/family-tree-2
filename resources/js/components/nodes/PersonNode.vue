@@ -104,9 +104,7 @@ function emitToggleBranch() {
           </button>
 
           <!-- collapse/expand button -->
-            <button title="Toggle branch" @click.stop="emitToggleBranch" class="ml-2">
-            🔀
-            </button>
+          <button title="Toggle branch" @click.stop="emitToggleBranch" class="ml-2">🔀</button>
         </div>
       </NodeToolbar>
 

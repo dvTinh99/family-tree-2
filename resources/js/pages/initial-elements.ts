@@ -30,33 +30,33 @@ export const edgesInit = [
   { id: 'e1', source: 'p1', target: 'p3', type: 'step', data: { relation: 'parent' } },
   { id: 'e2', source: 'p2', target: 'p3', type: 'step', data: { relation: 'parent' } },
 
-//   { id: 'e3', source: 'p1', target: 'p4', type: 'step', data: { relation: 'parent' } },
-//   { id: 'e4', source: 'p2', target: 'p4', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e3', source: 'p1', target: 'p4', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e4', source: 'p2', target: 'p4', type: 'step', data: { relation: 'parent' } },
 
-//   // Generation 1 -> Generation 2
-//   { id: 'e5', source: 'p3', target: 'p5', type: 'step', data: { relation: 'parent' } },
-//   { id: 'e6', source: 'p4', target: 'p5', type: 'step', data: { relation: 'parent' } },
+  //   // Generation 1 -> Generation 2
+  //   { id: 'e5', source: 'p3', target: 'p5', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e6', source: 'p4', target: 'p5', type: 'step', data: { relation: 'parent' } },
 
-//   { id: 'e7', source: 'p3', target: 'p7', type: 'step', data: { relation: 'parent' } },
-//   { id: 'e8', source: 'p4', target: 'p7', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e7', source: 'p3', target: 'p7', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e8', source: 'p4', target: 'p7', type: 'step', data: { relation: 'parent' } },
 
-//   // Generation 2 spouse connection (p5 <-> p6)
-//   { id: 'e9', source: 'p5', target: 'p6', type: 'step', data: { relation: 'spouse' }, markerEnd: MarkerType.ArrowClosed },
+  //   // Generation 2 spouse connection (p5 <-> p6)
+  //   { id: 'e9', source: 'p5', target: 'p6', type: 'step', data: { relation: 'spouse' }, markerEnd: MarkerType.ArrowClosed },
 
-//   // Generation 2 -> Generation 3 (parents)
-//   { id: 'e10', source: 'p5', target: 'p8', type: 'step', data: { relation: 'parent' } },
-//   { id: 'e11', source: 'p6', target: 'p8', type: 'step', data: { relation: 'parent' } },
+  //   // Generation 2 -> Generation 3 (parents)
+  //   { id: 'e10', source: 'p5', target: 'p8', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e11', source: 'p6', target: 'p8', type: 'step', data: { relation: 'parent' } },
 
-//   // Generation 3 spouse connection (p8 <-> p9)
-//   { id: 'e12', source: 'p8', target: 'p9', type: 'step', data: { relation: 'spouse' }, markerEnd: MarkerType.ArrowClosed },
+  //   // Generation 3 spouse connection (p8 <-> p9)
+  //   { id: 'e12', source: 'p8', target: 'p9', type: 'step', data: { relation: 'spouse' }, markerEnd: MarkerType.ArrowClosed },
 
-//   // Generation 3 -> Generation 4 (children)
-//   { id: 'e13', source: 'p8', target: 'p10', type: 'step', data: { relation: 'parent' } },
-//   { id: 'e14', source: 'p9', target: 'p10', type: 'step', data: { relation: 'parent' } },
+  //   // Generation 3 -> Generation 4 (children)
+  //   { id: 'e13', source: 'p8', target: 'p10', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e14', source: 'p9', target: 'p10', type: 'step', data: { relation: 'parent' } },
 
-//   { id: 'e15', source: 'p8', target: 'p11', type: 'step', data: { relation: 'parent' } },
-//   { id: 'e16', source: 'p9', target: 'p11', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e15', source: 'p8', target: 'p11', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e16', source: 'p9', target: 'p11', type: 'step', data: { relation: 'parent' } },
 
-//   { id: 'e17', source: 'p8', target: 'p12', type: 'step', data: { relation: 'parent' } },
-//   { id: 'e18', source: 'p9', target: 'p12', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e17', source: 'p8', target: 'p12', type: 'step', data: { relation: 'parent' } },
+  //   { id: 'e18', source: 'p9', target: 'p12', type: 'step', data: { relation: 'parent' } },
 ]

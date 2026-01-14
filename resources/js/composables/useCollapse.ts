@@ -14,7 +14,8 @@ export function useCollapse(nodes: Ref<any[]>, edges: Ref<any[]>) {
       const cur = q.shift()!
       edges.value.forEach((e) => {
         if (e.source === cur && !out.has(e.target) && e.target !== startId) {
-          out.add(e.target); q.push(e.target)
+          out.add(e.target)
+          q.push(e.target)
         }
       })
     }
@@ -28,10 +29,14 @@ export function useCollapse(nodes: Ref<any[]>, edges: Ref<any[]>) {
     if (descIds.length === 0) return
 
     const snapshotNodes = nodes.value.filter((n) => descIds.includes(n.id))
-    const snapshotEdges = edges.value.filter((e) => descIds.includes(e.source) || descIds.includes(e.target))
+    const snapshotEdges = edges.value.filter(
+      (e) => descIds.includes(e.source) || descIds.includes(e.target)
+    )
 
     nodes.value = nodes.value.filter((n) => !descIds.includes(n.id))
-    edges.value = edges.value.filter((e) => !(descIds.includes(e.source) || descIds.includes(e.target)))
+    edges.value = edges.value.filter(
+      (e) => !(descIds.includes(e.source) || descIds.includes(e.target))
+    )
 
     const summaryId = `collapsed-${parentId}-${Date.now().toString().slice(-4)}`
     const parent = nodes.value.find((n) => n.id === parentId) || { position: { x: 0, y: 0 } }
@@ -46,11 +51,17 @@ export function useCollapse(nodes: Ref<any[]>, edges: Ref<any[]>) {
 
     edges.value.push({
       id: `e-${parentId}-${summaryId}`,
-      source: parentId, target: summaryId, type: 'smoothstep', data: { relation: 'collapsed' },
-      sourceHandle: 'bottom-source', targetHandle: 'top-target',
+      source: parentId,
+      target: summaryId,
+      type: 'smoothstep',
+      data: { relation: 'collapsed' },
+      sourceHandle: 'bottom-source',
+      targetHandle: 'top-target',
     })
 
-    nodes.value = nodes.value.map((n) => (n.id === parentId ? { ...n, data: { ...(n.data || {}), _collapsed: true } } : n))
+    nodes.value = nodes.value.map((n) =>
+      n.id === parentId ? { ...n, data: { ...(n.data || {}), _collapsed: true } } : n
+    )
     collapsedMap.value.set(parentId, { nodes: snapshotNodes, edges: snapshotEdges, summaryId })
     nextTick().then(() => fitView({ padding: 0.12 }))
   }
@@ -64,7 +75,9 @@ export function useCollapse(nodes: Ref<any[]>, edges: Ref<any[]>) {
     nodes.value = nodes.value.concat(snap.nodes)
     edges.value = edges.value.concat(snap.edges)
 
-    nodes.value = nodes.value.map((n) => (n.id === parentId ? { ...n, data: { ...(n.data || {}), _collapsed: false } } : n))
+    nodes.value = nodes.value.map((n) =>
+      n.id === parentId ? { ...n, data: { ...(n.data || {}), _collapsed: false } } : n
+    )
 
     collapsedMap.value.delete(parentId)
     nextTick().then(() => fitView({ padding: 0.12 }))

@@ -20,17 +20,25 @@ export function useLayout(nodes: Ref<any[]>, edges: Ref<any[]>) {
 
     const levels = new Map()
     const q: string[] = []
-    roots.forEach((r) => { levels.set(r, 0); q.push(r) })
+    roots.forEach((r) => {
+      levels.set(r, 0)
+      q.push(r)
+    })
     while (q.length) {
       const id = q.shift() as string
       const lvl = levels.get(id)!
       const children = outgoing.get(id) || []
       children.forEach((c: string) => {
-        if (!levels.has(c)) { levels.set(c, lvl + 1); q.push(c) }
+        if (!levels.has(c)) {
+          levels.set(c, lvl + 1)
+          q.push(c)
+        }
       })
     }
 
-    nodesArr.forEach((n) => { if (!levels.has(n.id)) levels.set(n.id, 0) })
+    nodesArr.forEach((n) => {
+      if (!levels.has(n.id)) levels.set(n.id, 0)
+    })
 
     const levelMap = new Map<number, string[]>()
     nodesArr.forEach((n) => {
