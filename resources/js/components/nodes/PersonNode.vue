@@ -28,28 +28,8 @@ const age = computed(() => {
 const toolbarAction = ref([
   {
     title: 'something',
-    text: '👨',
+    text: 'ᐩ',
     action: () => emitAddRelation('father'),
-  },
-  {
-    title: 'something',
-    text: '👩',
-    action: () => emitAddRelation('mother'),
-  },
-  {
-    title: 'something',
-    text: '🧑',
-    action: () => emitAddRelation('sibling'),
-  },
-  {
-    title: 'something',
-    text: '👶',
-    action: () => emitAddRelation('child'),
-  },
-  {
-    title: 'something',
-    text: '💍',
-    action: () => emitAddRelation('spouse'),
   },
 ])
 

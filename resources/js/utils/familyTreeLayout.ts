@@ -1,12 +1,12 @@
 import dagre from '@dagrejs/dagre'
-
+import type { Edge, Node } from '@vue-flow/core'
 /**
  * Generate positioned nodes for a simple family tree.
  * Ensures spouse pairs have gap and single child sits between parents.
  * @param {Array} nodes – list of nodes
  * @param {Array} relation – list of relationships
  */
-export function familyTreeLayout(nodes, relation) {
+export function familyTreeLayout(nodes: Node[], relation: Edge[]) {
   const g = new dagre.graphlib.Graph()
   g.setDefaultEdgeLabel(() => ({}))
 
@@ -22,7 +22,7 @@ export function familyTreeLayout(nodes, relation) {
   })
 
   // Build map
-  const nodeMap = {}
+  const nodeMap = {} as any
   nodes.forEach((n) => {
     nodeMap[n.id] = { ...n }
     g.setNode(n.id, {
@@ -96,4 +96,23 @@ export function familyTreeLayout(nodes, relation) {
   })
 
   return layouted
+}
+
+export function applyRelationHandles(edges: Edge[]) {
+  return edges.map((edge) => {
+    if (edge.data?.relation === 'spouse') {
+      return {
+        ...edge,
+        sourceHandle: 'right-source',
+        targetHandle: 'left-target',
+      }
+    } else if (edge.data?.relation === 'parent') {
+      return {
+        ...edge,
+        sourceHandle: 'bottom-source',
+        targetHandle: 'top-target',
+      }
+    }
+    return edge
+  })
 }

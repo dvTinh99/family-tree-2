@@ -1,3 +1,5 @@
+import type { Edge, Node } from '@vue-flow/core'
+
 export const nodesInit = [
   { id: 'g1p1', type: 'person', label: 'Gen1 Grandfather', data: { name: 'Gen1 Grandfather' } },
   { id: 'g1p2', type: 'person', label: 'Gen1 Grandmother', data: { name: 'Gen1 Grandmother' } },
@@ -24,7 +26,7 @@ export const nodesInit = [
     label: 'Gen5 GreatGrandchild A1b',
     data: { name: 'Gen5 GreatGrandchild A1b' },
   },
-]
+] as Node[]
 
 export const edgesInit = [
   // Gen1 spouses
@@ -170,4 +172,4 @@ export const edgesInit = [
     type: 'step',
     data: { relation: 'parent' },
   },
-]
+] as Edge[]

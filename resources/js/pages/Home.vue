@@ -11,40 +11,22 @@ import { useLayout } from '@/composables/useLayout'
 import { nodesInit, edgesInit } from './initial-elements'
 import SearchPanel from '@/components/SearchPanel.vue'
 import { useCollapse } from '@/composables/useCollapse'
-import { familyTreeLayout } from '@/utils/familyTreeLayout'
-import type { Edge } from '@vue-flow/core'
+import { familyTreeLayout, applyRelationHandles } from '@/utils/familyTreeLayout'
+import type { Edge, Node } from '@vue-flow/core'
+import { useApi } from '@/composables/useApi'
+import { useFamilyTreeStore } from '@/store/familyTree'
 
-const nodes = ref([])
+const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
 const selectedNodeId = ref(null)
+const familyStore = useFamilyTreeStore()
 
 const { fitView } = useVueFlow()
 
-function applyRelationHandles(edges: Edge[]) {
-  return edges.map((edge) => {
-    if (edge.data?.relation === 'spouse') {
-      return {
-        ...edge,
-        sourceHandle: 'right-source',
-        targetHandle: 'left-target',
-      }
-    } else if (edge.data?.relation === 'parent') {
-      return {
-        ...edge,
-        sourceHandle: 'bottom-source',
-        targetHandle: 'top-target',
-      }
-    }
-    return edge
-  })
-}
 onMounted(async () => {
-  edges.value = applyRelationHandles(edgesInit)
-  nodes.value = familyTreeLayout(nodesInit, edgesInit)
-  // wait for VueFlow to mount and DOM to update
+  await familyStore.initStore()
   await nextTick()
   fitView()
-  //   resetLayout()
 })
 
 const showRelationDialog = ref(false)
@@ -297,7 +279,7 @@ function performSearch() {
 
 <template>
   <div class="h-screen w-screen">
-    <SearchPanel @search="performSearch" @clear="clearSearch" />
+    <!-- <SearchPanel @search="performSearch" @clear="clearSearch" /> -->
     <button @click="resetLayout" class="layout-reset-btn" title="Reset layout">
       ⤒ Reset layout
     </button>
@@ -309,8 +291,8 @@ function performSearch() {
       />
     </div>
     <VueFlow
-      :nodes="nodes"
-      :edges="edges"
+      v-model:nodes="familyStore.nodesFormat"
+      v-model:edges="familyStore.edgesFormat"
       fit-view-on-init
       @node-click="onNodeClick"
       @pane-click="clearSelection"
