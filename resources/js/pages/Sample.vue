@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { h, onMounted, ref, nextTick } from 'vue'
 import { Background } from '@vue-flow/background'
 import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
@@ -11,14 +11,12 @@ const nodes = ref([
     id: '1',
     type: 'person',
     label: 'Parent A',
-    // position: { x: 0, y: 0 },
     data: { name: 'Parent A' },
   },
   {
     id: '2',
     type: 'person',
     label: 'Parent B',
-    // position: { x: 200, y: 0 },
     data: { name: 'Parent B' },
   },
   { id: '3', type: 'person', label: 'Child', data: { name: 'Child' } },
@@ -30,6 +28,15 @@ const edges = ref([
     id: 'e1',
     source: '1',
     target: '2',
+    type: 'step',
+    data: { relation: 'spouse' },
+    sourceHandle: 'right-source',
+    targetHandle: 'left-target',
+  },
+  {
+    id: 'e6',
+    source: '4',
+    target: '5',
     type: 'step',
     data: { relation: 'spouse' },
     sourceHandle: 'right-source',
@@ -71,16 +78,14 @@ const edges = ref([
     sourceHandle: 'bottom-source',
     targetHandle: 'top-target',
   },
-
 ])
 
 const { fitView } = useVueFlow()
 async function layoutGraph(direction) {
-nodes.value = familyTreeLayout(nodes.value, edges.value)
+  nodes.value = familyTreeLayout(nodes.value, edges.value)
 
   console.log('node ne', nodes.value)
   console.log('edges ne', edges.value)
-
 
   nextTick(() => {
     fitView()

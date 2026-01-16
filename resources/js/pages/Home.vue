@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { h, nextTick, onMounted, reactive, ref } from 'vue'
 import { Background } from '@vue-flow/background'
 import { MarkerType, useVueFlow, VueFlow } from '@vue-flow/core'
@@ -11,18 +11,40 @@ import { useLayout } from '@/composables/useLayout'
 import { nodesInit, edgesInit } from './initial-elements'
 import SearchPanel from '@/components/SearchPanel.vue'
 import { useCollapse } from '@/composables/useCollapse'
+import { familyTreeLayout } from '@/utils/familyTreeLayout'
+import type { Edge } from '@vue-flow/core'
 
 const nodes = ref([])
-const edges = ref([])
+const edges = ref<Edge[]>([])
 const selectedNodeId = ref(null)
 
 const { fitView } = useVueFlow()
+
+function applyRelationHandles(edges: Edge[]) {
+  return edges.map((edge) => {
+    if (edge.data?.relation === 'spouse') {
+      return {
+        ...edge,
+        sourceHandle: 'right-source',
+        targetHandle: 'left-target',
+      }
+    } else if (edge.data?.relation === 'parent') {
+      return {
+        ...edge,
+        sourceHandle: 'bottom-source',
+        targetHandle: 'top-target',
+      }
+    }
+    return edge
+  })
+}
 onMounted(async () => {
-  nodes.value = nodesInit
-  edges.value = edgesInit
+  edges.value = applyRelationHandles(edgesInit)
+  nodes.value = familyTreeLayout(nodesInit, edgesInit)
   // wait for VueFlow to mount and DOM to update
   await nextTick()
-  resetLayout()
+  fitView()
+  //   resetLayout()
 })
 
 const showRelationDialog = ref(false)

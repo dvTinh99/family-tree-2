@@ -1,4 +1,4 @@
-import dagre from "@dagrejs/dagre";
+import dagre from '@dagrejs/dagre'
 
 /**
  * Generate positioned nodes for a simple family tree.
@@ -7,93 +7,93 @@ import dagre from "@dagrejs/dagre";
  * @param {Array} relation – list of relationships
  */
 export function familyTreeLayout(nodes, relation) {
-  const g = new dagre.graphlib.Graph();
-  g.setDefaultEdgeLabel(() => ({}));
+  const g = new dagre.graphlib.Graph()
+  g.setDefaultEdgeLabel(() => ({}))
 
   // Config spacing
-  const spouseGap = 100;
-  const defaultNodeWidth = 180;
-  const defaultNodeHeight = 90;
+  const spouseGap = 100
+  const defaultNodeWidth = 180
+  const defaultNodeHeight = 90
 
   g.setGraph({
-    rankdir: "TB",   // top to bottom
-    ranksep: 100,    // vertical spacing
-    nodesep: 80,     // horizontal spacing
-  });
+    rankdir: 'TB', // top to bottom
+    ranksep: 100, // vertical spacing
+    nodesep: 80, // horizontal spacing
+  })
 
   // Build map
-  const nodeMap = {};
+  const nodeMap = {}
   nodes.forEach((n) => {
-    nodeMap[n.id] = { ...n };
+    nodeMap[n.id] = { ...n }
     g.setNode(n.id, {
       width: defaultNodeWidth,
       height: defaultNodeHeight,
-    });
-  });
+    })
+  })
 
   // Edges: only parent->child for Dagre
   relation.forEach((e) => {
-    if (e.data?.relation === "parent") {
-      g.setEdge(e.source, e.target);
+    if (e.data?.relation === 'parent') {
+      g.setEdge(e.source, e.target)
     }
-  });
+  })
 
   // Layout with Dagre
-  dagre.layout(g);
+  dagre.layout(g)
 
   // Read positions
   const layouted = nodes.map((n) => {
-    const point = g.node(n.id);
+    const point = g.node(n.id)
     return {
       ...n,
       position: {
         x: point.x - defaultNodeWidth / 2,
         y: point.y - defaultNodeHeight / 2,
       },
-    };
-  });
+    }
+  })
 
   // Post-process: enforce spouse pair gaps & center single child
   const spouses = relation
-    .filter((e) => e.data?.relation === "spouse")
-    .map((e) => [e.source, e.target]);
+    .filter((e) => e.data?.relation === 'spouse')
+    .map((e) => [e.source, e.target])
 
   spouses.forEach(([a, b]) => {
-    const nodeA = layouted.find((x) => x.id === a);
-    const nodeB = layouted.find((x) => x.id === b);
-    if (!nodeA || !nodeB) return;
+    const nodeA = layouted.find((x) => x.id === a)
+    const nodeB = layouted.find((x) => x.id === b)
+    if (!nodeA || !nodeB) return
 
     // adjust gap if too small
-    const mid = (nodeA.position.x + nodeB.position.x) / 2;
-    const currentGap = Math.abs(nodeA.position.x - nodeB.position.x);
+    const mid = (nodeA.position.x + nodeB.position.x) / 2
+    const currentGap = Math.abs(nodeA.position.x - nodeB.position.x)
     if (currentGap < spouseGap) {
-      nodeA.position.x = mid - spouseGap / 2;
-      nodeB.position.x = mid + spouseGap / 2;
+      nodeA.position.x = mid - spouseGap / 2
+      nodeB.position.x = mid + spouseGap / 2
     }
 
     // find children for both parents
     const children = relation
       .filter(
         (e) =>
-          e.data?.relation === "parent" &&
+          e.data?.relation === 'parent' &&
           (e.source === a || e.source === b) &&
           relation.some(
             (ee) =>
-              ee.data?.relation === "parent" &&
+              ee.data?.relation === 'parent' &&
               (ee.source === a || ee.source === b) &&
               ee.target === e.target
           )
       )
-      .map((e) => e.target);
+      .map((e) => e.target)
 
     // If exactly 1 child, put child between parents
     if (children.length === 1) {
-      const childNode = layouted.find((x) => x.id === children[0]);
+      const childNode = layouted.find((x) => x.id === children[0])
       if (childNode) {
-        childNode.position.x = mid - defaultNodeWidth / 2;
+        childNode.position.x = mid - defaultNodeWidth / 2
       }
     }
-  });
+  })
 
-  return layouted;
+  return layouted
 }
