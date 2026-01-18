@@ -8,10 +8,8 @@ import PersonNode from '@/components/nodes/PersonNode.vue'
 import { MiniMap } from '@vue-flow/minimap'
 import PersonModal from '@/components/PersonModal.vue'
 import { useLayout } from '@/composables/useLayout'
-import { nodesInit, edgesInit } from './initial-elements'
 import SearchPanel from '@/components/SearchPanel.vue'
 import { useCollapse } from '@/composables/useCollapse'
-import { familyTreeLayout, applyRelationHandles } from '@/utils/familyTreeLayout'
 import type { Edge, Node } from '@vue-flow/core'
 import { useApi } from '@/composables/useApi'
 import { useFamilyTreeStore } from '@/store/familyTree'
@@ -25,6 +23,9 @@ const { fitView } = useVueFlow()
 
 onMounted(async () => {
   await familyStore.initStore()
+  nodes.value = familyStore.nodesFormat
+  edges.value = familyStore.edgesFormat
+
   await nextTick()
   fitView()
 })
@@ -166,6 +167,7 @@ function cancelAddRelation() {
 
 function clearSelection() {
   selectedNodeId.value = null
+  familyStore.selectNode(null)
 
   // reset edge styles and node highlight marker
   edges.value = edges.value.map((e) => {
@@ -179,19 +181,18 @@ function clearSelection() {
 function onNodeClick({ node }) {
   const nodeId = node.id
   selectedNodeId.value = nodeId
+  familyStore.selectNode(nodeId)
 
-  // parents: edges where target === nodeId
-  const parentIds = edges.value.filter((e) => e.target === nodeId).map((e) => e.source)
-  // children: edges where source === nodeId
-  const childIds = edges.value.filter((e) => e.source === nodeId).map((e) => e.target)
+  const highlightIds = getHighlightIds(nodeId)
 
-  // update edges: highlight edges connected to the node or between its parents/children; dim others
+  // mark nodes for highlight
+  nodes.value = nodes.value.map((n) => {
+    return { ...n, data: { ...(n.data || {}), _highlight: highlightIds.has(n.id) } }
+  })
+
+  // update edges: highlight edges connected to highlighted nodes
   edges.value = edges.value.map((e) => {
-    const related =
-      e.source === nodeId ||
-      e.target === nodeId ||
-      parentIds.includes(e.source) ||
-      childIds.includes(e.target)
+    const related = highlightIds.has(e.source) || highlightIds.has(e.target)
     const copy = { ...e }
     if (related) {
       copy.style = { ...(copy.style || {}), stroke: '#f59e0b', strokeWidth: 3, opacity: 1 }
@@ -200,13 +201,26 @@ function onNodeClick({ node }) {
     }
     return copy
   })
+}
 
-  // mark selected node and parent nodes for node-level highlight (PersonNode reads data._highlight)
-  nodes.value = nodes.value.map((n) => {
-    const isParent = parentIds.includes(n.id)
-    const isSelected = n.id === nodeId
-    return { ...n, data: { ...(n.data || {}), _highlight: isParent || isSelected } }
-  })
+function getHighlightIds(nodeId: string) {
+  const highlights = new Set([nodeId])
+  // find spouse node
+  const spouseEdge = edges.value.find(e => e.data?.relation === 'spouse' && (e.source === nodeId || e.target === nodeId))
+  if (spouseEdge) {
+    const spouseId = spouseEdge.source === nodeId ? spouseEdge.target : spouseEdge.source
+    highlights.add(spouseId)
+    // add other spouses
+    edges.value.filter(e => e.data?.relation === 'spouse' && e.source === spouseId).forEach(e => highlights.add(e.target))
+    edges.value.filter(e => e.data?.relation === 'spouse' && e.target === spouseId).forEach(e => highlights.add(e.source))
+    // add children
+    edges.value.filter(e => e.data?.relation === 'parent' && e.source === spouseId).forEach(e => highlights.add(e.target))
+  } else {
+    // if no spouse, direct
+    edges.value.filter(e => e.source === nodeId && e.data?.relation === 'parent').forEach(e => highlights.add(e.target))
+    edges.value.filter(e => e.target === nodeId && e.data?.relation === 'parent').forEach(e => highlights.add(e.source))
+  }
+  return highlights
 }
 
 const { resetLayout } = useLayout(nodes, edges)
@@ -232,7 +246,7 @@ function performSearch() {
   const ageQ = searchAge.value ? parseInt(searchAge.value, 10) : NaN
 
   // find matched nodes
-  const matched = nodes.value.filter((n) => {
+  const matched = familyStore.nodes.value.filter((n) => {
     const name = ((n.data && n.data.name) || n.label || '').toString().toLowerCase()
     const nameMatch = q ? name.includes(q) : true
 
@@ -273,6 +287,7 @@ function performSearch() {
 
   // clear selectedNodeId because search can select multiple
   selectedNodeId.value = null
+  familyStore.selectNode(null)
 }
 // --- END SEARCH LOGIC ---
 </script>
@@ -292,7 +307,7 @@ function performSearch() {
     </div>
     <VueFlow
       v-model:nodes="familyStore.nodesFormat"
-      v-model:edges="familyStore.edgesFormat"
+      :edges="familyStore.edgesFormat"
       fit-view-on-init
       @node-click="onNodeClick"
       @pane-click="clearSelection"

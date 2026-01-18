@@ -58,52 +58,7 @@ function emitToggleBranch() {
     <Handle type="source" :position="Position.Right" id="right-source" />
 
     <!-- ...existing markup (avatar, toolbar, text) ... -->
-    <div
-      :class="['person-node', { selected }]"
-      :data-highlight="props?.data?._highlight ? 'true' : 'false'"
-      style="
-        position: relative;
-        width: 180px;
-        height: 90px;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        padding: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        border-radius: 8px;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-      "
-    >
-      <!-- toolbar -->
-
-      <NodeToolbar :is-visible="data.toolbarVisible" :position="Position.Top">
-        <div>
-          <button :title="action.title" @click.stop="action.action" v-for="action in toolbarAction">
-            {{ action.text }}
-          </button>
-
-          <!-- collapse/expand button -->
-          <button title="Toggle branch" @click.stop="emitToggleBranch" class="ml-2">🔀</button>
-        </div>
-      </NodeToolbar>
-
-      <img
-        :src="avatar"
-        alt="avatar"
-        style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover"
-      />
-      <div style="text-align: left; flex: 1; line-height: 1">
-        <div style="font-weight: 700; font-size: 14px; color: #111827">{{ name }}</div>
-        <div style="font-size: 12px; color: #6b7280; margin-top: 4px">
-          <span v-if="age">Age: {{ age }}</span
-          ><span v-else>Age: —</span>
-          <div style="font-size: 11px; color: #9ca3af; margin-top: 2px">
-            Born: {{ birth || '—' }}
-          </div>
-        </div>
-      </div>
-    </div>
+    some thing
   </div>
 </template>
 
