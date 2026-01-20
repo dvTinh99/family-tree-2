@@ -25,6 +25,11 @@ const nodes = ref<any[]>([
     type: 'person',
     data: {}
   },
+  {
+    id: '4',
+    type: 'person',
+    data: {}
+  },
 ])
 const edges = ref<Edge[]>([
   {
@@ -40,6 +45,15 @@ const edges = ref<Edge[]>([
     id: 'e2',
     source: '1',
     target: '3',
+    type: 'step',
+    data: { relation: 'parent' },
+    sourceHandle: 'bottom-source',
+    targetHandle: 'top-target',
+  },
+  {
+    id: 'e3',
+    source: '1',
+    target: '4',
     type: 'step',
     data: { relation: 'parent' },
     sourceHandle: 'bottom-source',
@@ -77,7 +91,7 @@ onMounted(() => nextTick(() => layoutGraph('TB')))
         <PersonNode />
       </template>
       <template #node-spouse>
-        some thing
+        <SpouseNode />
       </template>
       <Background />
 

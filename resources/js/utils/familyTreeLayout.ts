@@ -175,12 +175,12 @@ export function familyTreeLayout2(
 
   g.setGraph({
     rankdir: direction,
-    ranksep: 120,  // vertical spacing between generations
-    nodesep: 80,   // horizontal spacing between nodes
+    ranksep: 80,  // vertical spacing between generations
+    nodesep: 30,   // horizontal spacing between nodes
   });
 
   const DEFAULT_W = 180;
-  const DEFAULT_H = 80;
+  const DEFAULT_H = 50;
 
   // 2) Add nodes to dagre graph
   nodes.forEach((n) => {
@@ -296,18 +296,18 @@ export function addSpouseAndRerouteParents(
           source: a,
           target: marriageId,
           type: "step",
-          data: { relation: "spouse" },
-          sourceHandle: 'right-source',
-          targetHandle: 'left-target',
+          data: { relation: "parent" },
+          sourceHandle: 'bottom-source',
+          targetHandle: 'top-target',
         });
         newEdges.push({
           id: `spouse-${b}-${marriageId}`,
-          source: marriageId,
-          target: b,
+          source: b,
+          target: marriageId,
           type: "step",
-          data: { relation: "spouse" },
-          sourceHandle: 'right-source',
-          targetHandle: 'left-target',
+          data: { relation: "parent" },
+          sourceHandle: 'bottom-source',
+          targetHandle: 'top-target',
         });
       }
     }
@@ -317,7 +317,7 @@ export function addSpouseAndRerouteParents(
   edges.forEach((e) => {
     // ignore original spouse edges — we already made new ones
     if (e.data?.relation === "spouse") {
-      return;
+      newEdges.push(e);
     }
 
     if (e.data?.relation === "parent") {

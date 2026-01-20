@@ -58,7 +58,6 @@ function emitToggleBranch() {
     <Handle type="source" :position="Position.Right" id="right-source" />
 
     <!-- ...existing markup (avatar, toolbar, text) ... -->
-    some thing
   </div>
 </template>
 
