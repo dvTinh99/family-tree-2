@@ -11,8 +11,8 @@ import { useLayout } from '@/composables/useLayout'
 import SearchPanel from '@/components/SearchPanel.vue'
 import { useCollapse } from '@/composables/useCollapse'
 import type { Edge, Node } from '@vue-flow/core'
-import { useApi } from '@/composables/useApi'
 import { useFamilyTreeStore } from '@/store/familyTree'
+import SpouseNode from '@/components/nodes/SpouseNode.vue'
 
 const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
@@ -23,8 +23,8 @@ const { fitView } = useVueFlow()
 
 onMounted(async () => {
   await familyStore.initStore()
-  nodes.value = familyStore.nodesFormat
-  edges.value = familyStore.edgesFormat
+  nodes.value = familyStore.nodes
+  edges.value = familyStore.edges
 
   await nextTick()
   fitView()
@@ -51,109 +51,31 @@ function onAddRelationIntent({ sourceId, relationType }) {
 function confirmAddRelation() {
   const id = Date.now().toString()
   const source = nodes.value.find((n) => n.id === relationForm.sourceId)
-  const pos = source?.position || { x: 0, y: 0 }
-
-  // base offsets per relation
-  const offsets = {
-    father: { x: -80, y: -160 },
-    mother: { x: 80, y: -160 },
-    child: { x: 0, y: 160 },
-    sibling: { x: 140, y: 0 },
-    spouse: { x: 110, y: 0 },
-  }
-
-  // choose offset (fallback if no type)
-  let off = offsets[relationForm.relationType] || { x: 0, y: 140 }
-
-  // small adjustments to avoid overlaps:
-  // - if adding another child, shift horizontally based on existing child count
-  if (relationForm.relationType === 'child' && source) {
-    const childCount = edges.value.filter(
-      (e) => e.source === source.id && e.data?.relation === 'child'
-    ).length
-    // center children under parent, spacing 120px
-    const idx = childCount // new child's index (0-based)
-    const center = idx % 2 === 0 ? -(Math.floor(idx / 2) * 120) : Math.ceil(idx / 2) * 120
-    off.x = center
-    off.y = 160
-  }
-
-  // - if adding sibling, place to the right but stagger vertically slightly
-  if (relationForm.relationType === 'sibling' && source) {
-    const siblingCount = nodes.value.filter((n) => {
-      // rough heuristic: siblings are nodes that share at least one parent via edges
-      return edges.value.some(
-        (e) =>
-          e.source !== source.id &&
-          e.target === n.id &&
-          edges.value.some((pe) => pe.source === e.source && pe.target === source.id)
-      )
-    }).length
-    off.x = 140
-    off.y = siblingCount * 12 // stagger a bit
-  }
-
-  // shift position relative to source
-  const newPos = { x: pos.x + off.x, y: pos.y + off.y }
 
   nodes.value.push({
     id,
     type: 'person',
-    position: newPos,
     data: {
       name: relationForm.name || 'New Person',
       birth: relationForm.birth || '',
       avatar: relationForm.avatar || `https://i.pravatar.cc/80?u=${id}`,
     },
-  })
-
-  // determine handle mapping per relation
-  let sourceIdForEdge = relationForm.sourceId
-  let targetIdForEdge = id
-  let sourceHandle = undefined
-  let targetHandle = undefined
-
-  if (relationForm.relationType === 'father' || relationForm.relationType === 'mother') {
-    // new parent above current: edge from new(bottom) -> current(top)
-    sourceIdForEdge = id
-    targetIdForEdge = relationForm.sourceId
-    sourceHandle = 'bottom-source'
-    targetHandle = 'top-target'
-  } else if (relationForm.relationType === 'child') {
-    // child below current: current(bottom) -> new(top)
-    sourceIdForEdge = relationForm.sourceId
-    targetIdForEdge = id
-    sourceHandle = 'bottom-source'
-    targetHandle = 'top-target'
-  } else if (relationForm.relationType === 'spouse') {
-    // spouse: from left side of current to right side of new
-    sourceIdForEdge = relationForm.sourceId
-    targetIdForEdge = id
-    sourceHandle = 'left-source'
-    targetHandle = 'right-target'
-  } else if (relationForm.relationType === 'sibling') {
-    // sibling: place to the right, connect current(right) -> new(left)
-    sourceIdForEdge = relationForm.sourceId
-    targetIdForEdge = id
-    sourceHandle = 'right-source'
-    targetHandle = 'left-target'
-  } else {
-    // fallback: default connection current -> new
-    sourceIdForEdge = relationForm.sourceId
-    targetIdForEdge = id
-    sourceHandle = 'bottom-source'
-    targetHandle = 'top-target'
-  }
+  } as any)
 
   edges.value.push({
-    id: `e-${sourceIdForEdge}-${targetIdForEdge}`,
-    source: sourceIdForEdge,
-    target: targetIdForEdge,
-    sourceHandle,
-    targetHandle,
+    id: `e-${id}`,
+    source: source?.id || '',
+    target: id,
+    // 'bottom-source',
+    // 'top-target',
     type: 'smoothstep',
     data: { relation: relationForm.relationType },
   })
+
+  const {nodes: nodeFormat, edges: edgeFormat} = familyStore.renderGraph(nodes.value, edges.value)
+
+  nodes.value = nodeFormat
+  edges.value = edgeFormat
 
   showRelationDialog.value = false
 
@@ -306,8 +228,8 @@ function performSearch() {
       />
     </div>
     <VueFlow
-      v-model:nodes="familyStore.nodesFormat"
-      :edges="familyStore.edgesFormat"
+      :nodes="nodes"
+      :edges="edges"
       fit-view-on-init
       @node-click="onNodeClick"
       @pane-click="clearSelection"
@@ -339,6 +261,10 @@ function performSearch() {
           :marker-end="customEdgeProps.markerEnd"
           :style="customEdgeProps.style"
         />
+      </template>
+
+      <template #node-spouse>
+        <SpouseNode />
       </template>
 
       <template #node-person="personNodeProps">

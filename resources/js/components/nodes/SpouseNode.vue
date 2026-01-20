@@ -2,6 +2,7 @@
 import { Handle, Position } from '@vue-flow/core'
 import { NodeToolbar } from '@vue-flow/node-toolbar'
 import { computed, ref } from 'vue'
+import FamilyIcon from '@/assets/svgs/family.svg'
 
 const props = defineProps({
   id: String,
@@ -58,6 +59,7 @@ function emitToggleBranch() {
     <Handle type="source" :position="Position.Right" id="right-source" />
 
     <!-- ...existing markup (avatar, toolbar, text) ... -->
+     <FamilyIcon class="w-[30px] h-[30px]"/>
   </div>
 </template>
 

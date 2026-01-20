@@ -6,167 +6,11 @@ import type { Edge, Node } from '@vue-flow/core'
  * @param {Array} nodes – list of nodes
  * @param {Array} relation – list of relationships
  */
-export function familyTreeLayout(nodes: Node[], relation: Edge[]): { nodes: Node[], edges: Edge[]} {
-  const g = new dagre.graphlib.Graph()
-  g.setDefaultEdgeLabel(() => ({}))
-
-  // Config spacing
-  const spouseGap = 100
-  const defaultNodeWidth = 200
-  const defaultNodeHeight = 90
-
-  g.setGraph({
-    rankdir: 'TB', // top to bottom
-    ranksep: 100, // vertical spacing
-    nodesep: 80, // horizontal spacing
-  })
-
-  // Identify spouse pairs
-  const spouses = relation
-    .filter((e) => e.data?.relation === 'spouse')
-    .map((e) => [e.source, e.target].sort()) // sort to ensure consistent order
-
-    console.log('spouses', spouses);
-    
-
-  // Create new nodes and edges
-  let newNodes = [...nodes]
-  let newEdges = [...relation]
-
-  spouses.forEach(([a, b]) => {
-    const spouseId = `spouse-${a}-${b}`
-    // Add spouse node
-    newNodes.push({
-      id: spouseId,
-      type: 'spouse',
-      data: {},
-      position: { x: 0, y: 0 }, // will be set later
-    })
-
-    // Add edges from spouses to spouse node
-    newEdges.push({
-      id: `edge-${a}-to-${spouseId}`,
-      source: a,
-      target: spouseId,
-      data: { relation: 'spouse-link' },
-      targetHandle: 'left-target',
-    })
-    newEdges.push({
-      id: `edge-${b}-to-${spouseId}`,
-      source: b,
-      target: spouseId,
-      data: { relation: 'spouse-link' },
-      targetHandle: 'right-target',
-    })
-
-    // Find children of this couple
-    const children = relation
-      .filter((e) => e.data?.relation === 'parent' && (e.source === a || e.source === b))
-      .map((e) => e.target)
-
-    console.log('children', children);
-    
-    // Remove original parent edges
-    newEdges = newEdges.filter(
-      (e) => !(e.data?.relation === 'parent' && (e.source === a || e.source === b))
-    )
-
-    // Add new parent edges from spouse node to children
-    children.forEach((child) => {
-      newEdges.push({
-        id: `edge-${spouseId}-to-${child}`,
-        source: spouseId,
-        target: child,
-        data: { relation: 'parent' },
-      })
-    })
-
-    // Remove original spouse edge
-    newEdges = newEdges.filter(
-      (e) =>
-        !(
-          e.data?.relation === 'spouse' &&
-          ((e.source === a && e.target === b) || (e.source === b && e.target === a))
-        )
-    )
-  })
-
-  // Build map and set nodes in graph
-  const nodeMap = {} as any
-  newNodes.forEach((n) => {
-    nodeMap[n.id] = { ...n }
-    g.setNode(n.id, {
-      width: defaultNodeWidth,
-      height: defaultNodeHeight,
-    })
-  })
-
-  // Edges: only parent->child for Dagre
-  newEdges.forEach((e) => {
-    if (e.data?.relation === 'parent') {
-      g.setEdge(e.source, e.target)
-    }
-  })
-
-  // Layout with Dagre
-  dagre.layout(g)
-
-  // Read positions
-  const layouted = newNodes.map((n) => {
-    const point = g.node(n.id)
-    console.log('point', point);
-    
-    return {
-      ...n,
-      position: {
-        x: point.x - defaultNodeWidth / 2,
-        y: point.y - defaultNodeHeight / 2,
-      },
-    }
-  })
-
-  // Post-process: position spouse nodes and adjust spouse positions
-  spouses.forEach(([a, b]) => {
-    const spouseId = `spouse-${a}-${b}`
-    const nodeA = layouted.find((x) => x.id === a)
-    const nodeB = layouted.find((x) => x.id === b)
-    const spouseNode = layouted.find((x) => x.id === spouseId)
-    if (!nodeA || !nodeB || !spouseNode) return
-
-    // Adjust spouse positions with gap
-    const currentGap = Math.abs(nodeA.position.x - nodeB.position.x)
-    const midX = (nodeA.position.x + nodeB.position.x) / 2
-    if (currentGap < spouseGap) {
-      nodeA.position.x = midX - spouseGap / 2
-      nodeB.position.x = midX + spouseGap / 2
-    }
-
-    // Now position spouse node at the center
-    const newMidX = (nodeA.position.x + nodeB.position.x) / 2
-    console.log('newMidX', newMidX);
-    
-    const newMidY = (nodeA.position.y + nodeB.position.y) / 2
-    console.log('newMidY', newMidY);
-
-    spouseNode.position.x = newMidX - defaultNodeWidth / 2
-    spouseNode.position.y = newMidY > 0 ? newMidY / 2 : newMidY
-  })
-
-  console.log('layouted', layouted);
-  console.log('edges', newEdges);
-  
-
-  return { nodes: layouted, edges: newEdges }
-}
-
-export function familyTreeLayout2(
+export function familyTreeLayout(
   nodes: Node[],
   edges: Edge[],
   direction: "TB" | "LR" = "TB"
 ): Node[] {
-  console.log('node before', nodes);
-  console.log('edge before', edges);
-  
   // 1) Initialize Dagre graph
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
@@ -179,14 +23,14 @@ export function familyTreeLayout2(
     nodesep: 30,   // horizontal spacing between nodes
   });
 
-  const DEFAULT_W = 180;
-  const DEFAULT_H = 50;
+  const DEFAULT_W = 200;
+  const DEFAULT_H = 40;
 
   // 2) Add nodes to dagre graph
   nodes.forEach((n) => {
     g.setNode(n.id, {
-      width: n.__rf?.width ?? DEFAULT_W,
-      height: n.__rf?.height ?? DEFAULT_H,
+      width: n.data?.width || DEFAULT_W,
+      height: n.data?.height || DEFAULT_H,
     });
   });
 
@@ -202,16 +46,28 @@ export function familyTreeLayout2(
   // 4) Compute layout
   dagre.layout(g);
 
-  g.nodes().forEach(function(v) {
-      console.log("Node " + v + ": " + JSON.stringify(g.node(v)));
-  });
-  g.edges().forEach(function(e) {
-      console.log("Edge " + e.v + " -> " + e.w + ": " + JSON.stringify(g.edge(e)));
-  });
+  // g.nodes().forEach(function(v) {
+  //     console.log("Node " + v + ": " + JSON.stringify(g.node(v)));
+  // });
+  // g.edges().forEach(function(e) {
+  //     console.log("Edge " + e.v + " -> " + e.w + ": " + JSON.stringify(g.edge(e)));
+  // });
 
   // 5) Map positions back to nodes
   const layouted = nodes.map((n) => {
     const { x, y } = g.node(n.id); // center coords
+    if (n.type == 'spouse') {
+      return {
+        ...n,
+        position: {
+          // adjust to top-left (Vue Flow expects top-left position)
+          // x: x - (n.__rf?.width ?? DEFAULT_W) / 2,
+          // y: y - (n.__rf?.height ?? DEFAULT_H) / 2,
+          x: x + 70,
+          y
+        },
+      };
+    }
     return {
       ...n,
       position: {
@@ -282,7 +138,7 @@ export function addSpouseAndRerouteParents(
           id: marriageId,
           type: "spouse",
           position: { x: 0, y: 0 },
-          data: {},
+          data: {width: 500, height: 50},
           // style: { opacity: 0, pointerEvents: "none" },
         });
 
@@ -295,19 +151,19 @@ export function addSpouseAndRerouteParents(
           id: `spouse-${a}-${marriageId}`,
           source: a,
           target: marriageId,
-          type: "step",
+          type: "smoothstep",
           data: { relation: "parent" },
           sourceHandle: 'bottom-source',
-          targetHandle: 'top-target',
+          targetHandle: 'left-target',
         });
         newEdges.push({
           id: `spouse-${b}-${marriageId}`,
           source: b,
           target: marriageId,
-          type: "step",
+          type: "smoothstep",
           data: { relation: "parent" },
           sourceHandle: 'bottom-source',
-          targetHandle: 'top-target',
+          targetHandle: 'right-target',
         });
       }
     }

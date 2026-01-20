@@ -3,7 +3,7 @@ import { h, onMounted, ref, nextTick } from 'vue'
 import { Background } from '@vue-flow/background'
 import { Edge, MarkerType, Node, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import PersonNode from '@/components/nodes/PersonNode.vue'
-import { familyTreeLayout2, addSpouseAndRerouteParents } from '@/utils/familyTreeLayout'
+import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTreeLayout'
 import SpouseNode from '@/components/nodes/SpouseNode.vue'
 
 const isLoading = ref(true)
@@ -66,15 +66,9 @@ const { fitView } = useVueFlow()
 async function layoutGraph(direction) {
   const { nodes: nodesFormat, edges: edgesFormat} = addSpouseAndRerouteParents(nodes.value, edges.value)
 
-  nodes.value = familyTreeLayout2(nodesFormat, edgesFormat)
+  nodes.value = familyTreeLayout(nodesFormat, edgesFormat)
   // nodes.value = nodeGraph
   edges.value = edgesFormat
-
-  console.log('nodes', nodes.value);
-  console.log('edges', edges.value);
-  
-  
-
   nextTick(() => {
     fitView()
   })

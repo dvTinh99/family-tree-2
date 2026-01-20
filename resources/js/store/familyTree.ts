@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Node, Edge } from '@vue-flow/core'
 import { useApi } from '@/composables/useApi'
-import { familyTreeLayout, applyRelationHandles } from '@/utils/familyTreeLayout'
+import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTreeLayout'
 
 export const useFamilyTreeStore = defineStore(
   'familyTree',
@@ -15,8 +15,6 @@ export const useFamilyTreeStore = defineStore(
 
     // getters
     const nodeCount = computed(() => nodes.value.length)
-    const edgesFormat = computed(() => applyRelationHandles(edges.value))
-    const nodesFormat = computed(() => familyTreeLayout(nodes.value, edges.value))
 
     // actions
 
@@ -26,8 +24,16 @@ export const useFamilyTreeStore = defineStore(
       )
       console.log('datane', data.value)
 
-      nodes.value = data.value?.nodes || []
-      edges.value = data.value?.edges || []
+      const {nodes: nodeResult, edges: edgeResult} = renderGraph(data.value?.nodes || [], data.value?.edges || [])
+      nodes.value = nodeResult
+      edges.value = edgeResult
+    }
+
+    function renderGraph(nodesParam?: Node[], edgesParam?: Edge[]) {
+      const {nodes: nodeResult, edges: edgeResult} = addSpouseAndRerouteParents(nodesParam || nodes.value, edgesParam || edges.value)
+      const nodeFormat = familyTreeLayout(nodeResult, edgeResult)
+
+      return { nodes: nodeFormat, edges: edgeResult}
     }
 
     function setNodes(newNodes: Node[]) {
@@ -65,9 +71,6 @@ export const useFamilyTreeStore = defineStore(
 
       // getters
       nodeCount,
-      edgesFormat,
-      nodesFormat,
-
       // actions
       initStore,
       setNodes,
@@ -76,6 +79,7 @@ export const useFamilyTreeStore = defineStore(
       addEdge,
       updateNodePosition,
       selectNode,
+      renderGraph,
     }
   },
   {
