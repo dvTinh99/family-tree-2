@@ -96,9 +96,9 @@ function emitToggleBranch() {
         style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover"
       />
       <div v-else>
-        <personIcon class="w-[50px] h-[50px]"/>
+        <personIcon class="w-[50px] h-[50px]" />
       </div>
-      
+
       <div style="text-align: left; flex: 1; line-height: 1">
         <div style="font-weight: 700; font-size: 14px; color: #111827">{{ name }}</div>
         <div style="font-size: 12px; color: #6b7280; margin-top: 4px">

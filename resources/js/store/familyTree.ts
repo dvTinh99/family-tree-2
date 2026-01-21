@@ -2,7 +2,11 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Node, Edge } from '@vue-flow/core'
 import { useApi } from '@/composables/useApi'
-import { familyTreeLayout, addSpouseAndRerouteParents, applyRelationHandles } from '@/utils/familyTreeLayout'
+import {
+  familyTreeLayout,
+  addSpouseAndRerouteParents,
+  applyRelationHandles,
+} from '@/utils/familyTreeLayout'
 
 export const useFamilyTreeStore = defineStore(
   'familyTree',
@@ -175,7 +179,7 @@ export const useFamilyTreeStore = defineStore(
       renderGraph,
 
       addChild,
-      addSpouse
+      addSpouse,
     }
   },
   {

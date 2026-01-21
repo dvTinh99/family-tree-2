@@ -8,7 +8,7 @@ const person = ref({
   name: '',
   birth: '',
   avatar: '',
-  type: 'person'
+  type: 'person',
 })
 const familyStore = useFamilyTreeStore()
 
@@ -32,7 +32,6 @@ function addNodeAndRelation(relation: string) {
       return 'parent'
   }
 }
-
 
 function doCancel() {
   emit('cancel')
