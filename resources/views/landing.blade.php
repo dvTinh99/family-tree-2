@@ -68,15 +68,15 @@
       <div>
         <p class="kicker">Visual genealogy • interactive</p>
         <h1 class="mt-4 text-3xl md:text-5xl font-extrabold tracking-tight hero-title">
-          Build and edit beautiful family trees, visually.
+          Turn family stories into clear, beautiful family trees.
         </h1>
         <p class="mt-4 text-lg text-gray-600 max-w-xl hero-sub">
-          Create, visualize and maintain complex family relationships with automatic layout, smooth animations, and direct-manipulation editing — perfect for genealogists, researchers, and teams.
+          Quickly map relationships, fix mistakes, and share an organized family history. Interactive editing, smart arrangement, and clean visual exports make research and storytelling effortless.
         </p>
 
         <div class="mt-6 flex gap-4 items-center">
-          <a href="#demo" class="cta-primary px-5 py-3 rounded-md shadow hover:shadow-lg transition hero-cta">Try Interactive Demo</a>
-          <a href="#features" class="px-4 py-3 rounded-md border hover:bg-gray-50">See Features</a>
+          <a href="#demo" class="cta-primary px-5 py-3 rounded-md shadow hover:shadow-lg transition hero-cta">Start Free Demo</a>
+          <a href="#features" class="px-4 py-3 rounded-md border hover:bg-gray-50">See Live Demo</a>
         </div>
 
         <ul class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
@@ -99,30 +99,30 @@
       <div class="max-w-6xl mx-auto px-4 py-12">
         <div class="grid gap-8 md:grid-cols-2 items-start">
           <div class="fade-in">
-            <h2 class="text-2xl font-bold">The problem</h2>
-            <p class="mt-4 text-gray-600">Genealogy tools often produce cluttered charts, require manual adjustments, or lack intuitive editing. Teams struggle with blended families, multiple marriages, and maintaining readable layouts as data grows.</p>
-            <h3 class="mt-6 text-lg font-semibold">Why they fail</h3>
-            <ul class="mt-3 list-disc list-inside text-gray-600">
-              <li>Rigid import-only flows</li>
-              <li>No visual tools for relationship correction</li>
-              <li>Poor automatic layout for complex marriages</li>
-            </ul>
-          </div>
+              <h2 class="text-2xl font-bold">Why mapping family history is painful</h2>
+              <p class="mt-4 text-gray-600">Manual charts get messy fast. When families have multiple marriages, adoptions, or missing records, diagrams become hard to read and even harder to correct. That slows research and breaks storytelling.</p>
+              <h3 class="mt-6 text-lg font-semibold">Where other tools fall short</h3>
+              <ul class="mt-3 list-disc list-inside text-gray-600">
+                <li>Static exports that need manual cleanup</li>
+                <li>Limited controls for complex relationships</li>
+                <li>Large trees that overwhelm readers</li>
+              </ul>
+            </div>
 
-          <div class="fade-in">
-            <h2 class="text-2xl font-bold">Our solution</h2>
-            <p class="mt-4 text-gray-600">A modern web editor that combines automatic layout algorithms with direct node/edge editing, spouse handling and branch collapsing for clarity — enabling faster, accurate family research.</p>
-            <p class="mt-4 text-gray-600">Powered by a lightweight API endpoint and client-side layout utilities (see <code>familyTreeLayout</code>).</p>
-          </div>
+            <div class="fade-in">
+              <h2 class="text-2xl font-bold">How this helps you</h2>
+              <p class="mt-4 text-gray-600">Edit directly on the chart, let the layout organize the family, and collapse branches to focus on the story you care about. It’s faster to correct errors, easier to explain relationships, and simple to share polished visuals.</p>
+              <p class="mt-4 text-gray-600">No steep learning curve — built for people who want clear results, not extra steps.</p>
+            </div>
         </div>
       </div>
     </section>
 
     <!-- Features -->
     <section id="features" class="max-w-6xl mx-auto px-4 py-12">
-      <div class="text-center">
-        <h2 class="text-3xl font-bold">Features built from the codebase</h2>
-        <p class="mt-2 text-gray-600 max-w-2xl mx-auto">Derived directly from the repository: layout helpers, spouse handling, collapsing branches, and an API-backed initial state.</p>
+        <div class="text-center">
+        <h2 class="text-3xl font-bold">Real features that save time</h2>
+        <p class="mt-2 text-gray-600 max-w-2xl mx-auto">Every feature is designed to help you understand and share family stories faster — less fiddling, more clarity.</p>
       </div>
 
       <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -131,48 +131,48 @@
             <!-- icon -->
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 7a4 4 0 110-8 4 4 0 010 8zM21 23v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <h3 class="font-semibold">Auto Layout</h3>
-          <p class="mt-2 text-sm text-gray-600">Dagre-based layout utilities produce readable hierarchical trees — see <a href="resources/js/utils/familyTreeLayout.ts" class="text-indigo-600">familyTreeLayout</a>.</p>
+          <h3 class="font-semibold">Auto‑Arrange</h3>
+          <p class="mt-2 text-sm text-gray-600">Automatically organize family nodes into a clean, readable layout so you can focus on relationships instead of positioning.</p>
         </article>
 
         <article class="p-5 bg-white rounded-lg shadow-sm fade-in feature-card">
           <div class="feature-icon mb-3" aria-hidden>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 12v0" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round"/></svg>
           </div>
-          <h3 class="font-semibold">Spouse & Parent Rerouting</h3>
-          <p class="mt-2 text-sm text-gray-600">Automatic spouse node insertion and parent rerouting keeps generations organized (implemented in <code>addSpouseAndRerouteParents</code>).</p>
+          <h3 class="font-semibold">Smart marriage handling</h3>
+          <p class="mt-2 text-sm text-gray-600">Keep spouses visually together and ensure parentage stays accurate—even for complex, multiple-marriage families.</p>
         </article>
 
         <article class="p-5 bg-white rounded-lg shadow-sm fade-in feature-card">
           <div class="feature-icon mb-3" aria-hidden>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 3h18v18H3z" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <h3 class="font-semibold">Collapse Branches</h3>
-          <p class="mt-2 text-sm text-gray-600">Temporarily collapse subtrees to reduce clutter; expand later (see <a href="resources/js/composables/useCollapse.ts" class="text-indigo-600">useCollapse</a>).</p>
+          <h3 class="font-semibold">Focus with Collapse</h3>
+          <p class="mt-2 text-sm text-gray-600">Hide distant branches to highlight the people and stories you care about, then expand when you’re ready.</p>
         </article>
 
         <article class="p-5 bg-white rounded-lg shadow-sm fade-in feature-card">
           <div class="feature-icon mb-3" aria-hidden>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 8H9l3-8z" stroke="#4f46e5" stroke-width="1.6"/></svg>
           </div>
-          <h3 class="font-semibold">Interactive Editing</h3>
-          <p class="mt-2 text-sm text-gray-600">Add people, spouses, and edges directly from the node toolbar in the editor (see person node components in <a href="resources/js/components/nodes/PersonNode.vue" class="text-indigo-600">PersonNode.vue</a>).</p>
+          <h3 class="font-semibold">Direct visual editing</h3>
+          <p class="mt-2 text-sm text-gray-600">Click and edit on the chart: add people, adjust relationships, or drag nodes for instant updates—no menus, no guesswork.</p>
         </article>
 
         <article class="p-5 bg-white rounded-lg shadow-sm fade-in feature-card">
           <div class="feature-icon mb-3" aria-hidden>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 8v8" stroke="#4f46e5" stroke-width="1.6"/></svg>
           </div>
-          <h3 class="font-semibold">Exportable Data</h3>
-          <p class="mt-2 text-sm text-gray-600">Client-side code uses a JSON model for nodes/edges and an API seed endpoint at <a href="routes/api.php" class="text-indigo-600">/api/family-tree</a>.</p>
+          <h3 class="font-semibold">Share & export</h3>
+          <p class="mt-2 text-sm text-gray-600">Export clean JSON or polished images to share with relatives, publish in reports, or archive your research.</p>
         </article>
 
         <article class="p-5 bg-white rounded-lg shadow-sm fade-in feature-card">
           <div class="feature-icon mb-3" aria-hidden>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 20v-6" stroke="#4f46e5" stroke-width="1.6"/></svg>
           </div>
-          <h3 class="font-semibold">Performance & Simplicity</h3>
-          <p class="mt-2 text-sm text-gray-600">Minimal server-side behavior; most logic runs client-side for snappy interactions and easy static deployment.</p>
+          <h3 class="font-semibold">Fast, private interaction</h3>
+          <p class="mt-2 text-sm text-gray-600">Most work happens in your browser for quick, responsive edits. Keep data local until you decide to share.</p>
         </article>
       </div>
     </section>
@@ -180,19 +180,19 @@
     <!-- How it works -->
     <section id="how" class="bg-white/50">
       <div class="max-w-5xl mx-auto px-4 py-12 text-center">
-        <h2 class="text-2xl font-bold">How it works — 3 steps</h2>
+        <h2 class="text-2xl font-bold">How it works — 3 simple steps</h2>
         <div class="mt-8 grid gap-6 md:grid-cols-3">
           <div class="p-6 bg-white rounded-lg fade-in">
-            <div class="text-2xl font-semibold">1. Load data</div>
-            <p class="mt-2 text-gray-600">Start from JSON or the built-in API seed at <code>/api/family-tree</code>.</p>
+            <div class="text-2xl font-semibold">1. Start with your data</div>
+            <p class="mt-2 text-gray-600">Import a file or begin from the sample to see your family instantly.</p>
           </div>
           <div class="p-6 bg-white rounded-lg fade-in">
-            <div class="text-2xl font-semibold">2. Auto layout</div>
-            <p class="mt-2 text-gray-600">Client-side Dagre layout computes positions; spouse nodes are added and parent edges rerouted for readability.</p>
+            <div class="text-2xl font-semibold">2. Let the editor organize it</div>
+            <p class="mt-2 text-gray-600">The layout arranges people into a clear chart while keeping relationships correct.</p>
           </div>
           <div class="p-6 bg-white rounded-lg fade-in">
-            <div class="text-2xl font-semibold">3. Edit & share</div>
-            <p class="mt-2 text-gray-600">Drag, add relations, collapse branches, and export the updated JSON or image.</p>
+            <div class="text-2xl font-semibold">3. Edit and share your story</div>
+            <p class="mt-2 text-gray-600">Make corrections, collapse branches, and export a clean image or data file to share with family.</p>
           </div>
         </div>
       </div>
@@ -201,7 +201,7 @@
     <!-- Demo / Screenshots -->
     <section id="demo" class="max-w-6xl mx-auto px-4 py-12">
       <h2 class="text-2xl font-bold text-center">Live preview & screenshots</h2>
-      <p class="text-center text-gray-600 mt-2">Interactive demo runs in-app. Use the Demo link to open the editor.</p>
+      <p class="text-center text-gray-600 mt-2">Explore the editor to see how nodes, spouses and branches behave — or upload your own data to try it live.</p>
 
       <div class="mt-6 grid gap-4 md:grid-cols-3">
         <figure class="bg-white p-3 rounded-lg shadow-sm fade-in">
@@ -226,15 +226,15 @@
         <div class="mt-8 grid gap-6 md:grid-cols-3">
           <div class="p-6 bg-white rounded-lg fade-in">
             <h3 class="font-semibold">Genealogy Researchers</h3>
-            <p class="mt-2 text-gray-600">Quickly map complex relationships and share clean diagrams.</p>
+            <p class="mt-2 text-gray-600">Map complex families faster and spot lineage questions at a glance.</p>
           </div>
           <div class="p-6 bg-white rounded-lg fade-in">
             <h3 class="font-semibold">Family Historians</h3>
-            <p class="mt-2 text-gray-600">Visual editing makes correcting lineage mistakes trivial.</p>
+            <p class="mt-2 text-gray-600">Create presentation-ready charts for reunions, publications, or family archives.</p>
           </div>
           <div class="p-6 bg-white rounded-lg fade-in">
-            <h3 class="font-semibold">Teams & Educators</h3>
-            <p class="mt-2 text-gray-600">Use as a collaborative visualization tool for teaching or projects.</p>
+            <h3 class="font-semibold">Community & educators</h3>
+            <p class="mt-2 text-gray-600">Teach family-history concepts with clear visuals or collaborate on group projects.</p>
           </div>
         </div>
       </div>
@@ -244,19 +244,19 @@
     <section id="trust" class="max-w-6xl mx-auto px-4 py-12">
       <div class="grid md:grid-cols-2 gap-8 items-center">
         <div class="fade-in">
-          <h2 class="text-2xl font-bold">Trust & Technology</h2>
-          <p class="mt-4 text-gray-600">Built with proven libraries and simple backend API seeding for reliability.</p>
+          <h2 class="text-2xl font-bold">Trust & reliability</h2>
+          <p class="mt-4 text-gray-600">Designed for researchers and families: fast, predictable, and respectful of your data. Most operations happen in your browser so you can work privately and quickly.</p>
           <ul class="mt-4 text-gray-600 list-disc list-inside">
-            <li>Client-side Dagre layout (see <a href="resources/js/utils/familyTreeLayout.ts" class="text-indigo-600">familyTreeLayout</a>)</li>
-            <li>Vue Flow inspired node/edge model (nodes/edges JSON)</li>
-            <li>Simple PHP API seed controller: <a href="app/Http/Controllers/FamilyTreeController.php" class="text-indigo-600">FamilyTreeController::index</a></li>
-            <li>Static-first deployable, fast & cacheable</li>
+            <li>Local-first editing for responsive interactions</li>
+            <li>Export options so you control sharing</li>
+            <li>Lightweight server seed for easy demos</li>
+            <li>Deployable as static files for performance</li>
           </ul>
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow-sm fade-in">
-          <h3 class="font-semibold">Security & Reliability</h3>
-          <p class="mt-2 text-gray-600">No sensitive data stored by default. The app uses server-seeded JSON and client-side rendering to keep the surface area small.</p>
+          <h3 class="font-semibold">Privacy & control</h3>
+          <p class="mt-2 text-gray-600">You choose when to share. The editor works offline and locally, and exports are only created when you ask for them.</p>
         </div>
       </div>
     </section>
@@ -264,11 +264,11 @@
     <!-- CTA -->
     <section id="contact" class="bg-gradient-to-r from-indigo-600 to-sky-600 text-white">
       <div class="max-w-4xl mx-auto px-4 py-12 text-center">
-        <h2 class="text-3xl font-bold">Ready to visualize your family tree?</h2>
-        <p class="mt-2 max-w-2xl mx-auto">Try the interactive demo or get in touch for a guided walkthrough.</p>
+        <h2 class="text-3xl font-bold">Ready to bring your family history to life?</h2>
+        <p class="mt-2 max-w-2xl mx-auto">Try the interactive demo now or request a short walkthrough to see how the editor can speed your research.</p>
         <div class="mt-6 flex justify-center gap-4">
           <a href="/sample" class="px-6 py-3 bg-white text-indigo-600 rounded-md font-semibold">Open Demo</a>
-          <a href="mailto:hello@example.com?subject=Family%20Tree%20Demo" class="px-6 py-3 border border-white/30 rounded-md">Request Demo</a>
+          <a href="mailto:hello@example.com?subject=Family%20Tree%20Demo" class="px-6 py-3 border border-white/30 rounded-md">Request Walkthrough</a>
         </div>
       </div>
     </section>
@@ -289,7 +289,7 @@
         </nav>
       </div>
 
-      <p class="mt-6 text-xs text-gray-400">© <span id="year"></span> Family Tree Builder — All rights reserved. This landing page is a static marketing front-end for the repository (see <a href="README.md" class="text-indigo-600">README</a>).</p>
+      <p class="mt-6 text-xs text-gray-400">© <span id="year"></span> Family Tree Builder — Build, edit and share clear family trees. Create polished charts for research, reunions, publications, and teaching. Learn more in the <a href="README.md" class="text-indigo-600">project README</a>.</p>
     </div>
   </footer>
 
