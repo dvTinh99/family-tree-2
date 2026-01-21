@@ -9,53 +9,46 @@ import type { Edge, Node } from '@vue-flow/core'
 export function familyTreeLayout(
   nodes: Node[],
   edges: Edge[],
-  direction: "TB" | "LR" = "TB"
+  direction: 'TB' | 'LR' = 'TB'
 ): Node[] {
   // 1) Initialize Dagre graph
-  const g = new dagre.graphlib.Graph();
-  g.setDefaultEdgeLabel(() => ({}));
+  const g = new dagre.graphlib.Graph()
+  g.setDefaultEdgeLabel(() => ({}))
 
-  const isHorizontal = direction === "LR";
+  const isHorizontal = direction === 'LR'
 
   g.setGraph({
     rankdir: direction,
-    ranksep: 80,  // vertical spacing between generations
-    nodesep: 30,   // horizontal spacing between nodes
-  });
+    ranksep: 100, // vertical spacing between generations
+    nodesep: 100, // horizontal spacing between nodes
+  })
 
-  const DEFAULT_W = 200;
-  const DEFAULT_H = 40;
+  const DEFAULT_W = 100
+  const DEFAULT_H = 50
 
   // 2) Add nodes to dagre graph
   nodes.forEach((n) => {
     g.setNode(n.id, {
       width: n.data?.width || DEFAULT_W,
       height: n.data?.height || DEFAULT_H,
-    });
-  });
+    })
+  })
 
   // 3) Add edges (parent → child direction)
   edges.forEach((e) => {
     // Only include layout relevant edges
     // spouse nodes already serve as intermediate
-    if (e.data?.relation === "parent") {
-      g.setEdge(e.source, e.target);
+    if (e.data?.relation === 'parent') {
+      g.setEdge(e.source, e.target)
     }
-  });
+  })
 
   // 4) Compute layout
-  dagre.layout(g);
-
-  // g.nodes().forEach(function(v) {
-  //     console.log("Node " + v + ": " + JSON.stringify(g.node(v)));
-  // });
-  // g.edges().forEach(function(e) {
-  //     console.log("Edge " + e.v + " -> " + e.w + ": " + JSON.stringify(g.edge(e)));
-  // });
+  dagre.layout(g)
 
   // 5) Map positions back to nodes
   const layouted = nodes.map((n) => {
-    const { x, y } = g.node(n.id); // center coords
+    const { x, y } = g.node(n.id) // center coords
     if (n.type == 'spouse') {
       return {
         ...n,
@@ -64,9 +57,9 @@ export function familyTreeLayout(
           // x: x - (n.__rf?.width ?? DEFAULT_W) / 2,
           // y: y - (n.__rf?.height ?? DEFAULT_H) / 2,
           x: x + 70,
-          y
+          y,
         },
-      };
+      }
     }
     return {
       ...n,
@@ -75,30 +68,28 @@ export function familyTreeLayout(
         // x: x - (n.__rf?.width ?? DEFAULT_W) / 2,
         // y: y - (n.__rf?.height ?? DEFAULT_H) / 2,
         x,
-        y
+        y,
       },
-    };
-  });
+    }
+  })
 
-  return layouted;
+  return layouted
 }
-
 
 export function applyRelationHandles(edges: Edge[]) {
   return edges.map((edge) => {
-    if (edge.data?.relation === 'spouse-link') {
+    if (edge.data?.relation === 'spouse') {
       return {
         ...edge,
-        sourceHandle: 'center-source',
+        sourceHandle: 'right-source',
+        targetHandle: 'left-target',
         type: 'smoothstep',
-        style: edge.style
       }
     } else if (edge.data?.relation === 'parent') {
       return {
         ...edge,
         sourceHandle: 'bottom-source',
         targetHandle: 'top-target',
-        style: edge.style
       }
     }
     return { ...edge, style: edge.style }
@@ -112,76 +103,76 @@ export function addSpouseAndRerouteParents(
   nodes: Node[],
   edges: Edge[]
 ): { nodes: Node[]; edges: Edge[] } {
-  const newNodes: Node[] = [...nodes];
-  const newEdges: Edge[] = [];
-  const seenSpousePairs = new Set<string>();
+  const newNodes: Node[] = [...nodes]
+  const newEdges: Edge[] = []
+  const seenSpousePairs = new Set<string>()
 
   // map: parentId -> spouseNodeId
-  const parentToSpouseNode: Record<string, string> = {};
+  const parentToSpouseNode: Record<string, string> = {}
 
   // 1) Create spouse nodes
   edges.forEach((e) => {
-    if (e.data?.relation === "spouse") {
-      const a = e.source;
-      const b = e.target;
+    if (e.data?.relation === 'spouse') {
+      const a = e.source
+      const b = e.target
 
       // stable key for pair
-      const key = [a, b].sort().join("|");
+      const key = [a, b].sort().join('|')
       if (!seenSpousePairs.has(key)) {
-        seenSpousePairs.add(key);
+        seenSpousePairs.add(key)
 
-        const marriageId = `spouse-${a}-${b}`;
+        const marriageId = `spouse-${a}-${b}`
 
         const idx = nodes.findIndex((item) => item.id == a)
         // create invisible spouse node
         newNodes.splice(idx + 1, 0, {
           id: marriageId,
-          type: "spouse",
+          type: 'spouse',
           position: { x: 0, y: 0 },
-          data: {width: 500, height: 50},
+          data: { width: 500, height: 50 },
           // style: { opacity: 0, pointerEvents: "none" },
-        });
+        })
 
         // set map both directions
-        parentToSpouseNode[a] = marriageId;
-        parentToSpouseNode[b] = marriageId;
+        parentToSpouseNode[a] = marriageId
+        parentToSpouseNode[b] = marriageId
 
         // add edge parent → spouseNode
         newEdges.push({
           id: `spouse-${a}-${marriageId}`,
           source: a,
           target: marriageId,
-          type: "smoothstep",
-          data: { relation: "parent" },
+          type: 'smoothstep',
+          data: { relation: 'parent' },
           sourceHandle: 'bottom-source',
           targetHandle: 'left-target',
-        });
+        })
         newEdges.push({
           id: `spouse-${b}-${marriageId}`,
           source: b,
           target: marriageId,
-          type: "smoothstep",
-          data: { relation: "parent" },
+          type: 'smoothstep',
+          data: { relation: 'parent' },
           sourceHandle: 'bottom-source',
           targetHandle: 'right-target',
-        });
+        })
       }
     }
-  });
+  })
 
   // 2) Reroute parent → child edges
   edges.forEach((e) => {
     // ignore original spouse edges — we already made new ones
-    if (e.data?.relation === "spouse") {
-      newEdges.push(e);
+    if (e.data?.relation === 'spouse') {
+      newEdges.push(e)
     }
 
-    if (e.data?.relation === "parent") {
-      const parentId = e.source;
-      const childId = e.target;
+    if (e.data?.relation === 'parent') {
+      const parentId = e.source
+      const childId = e.target
 
       // find spouse node if exists
-      const spouseNode = parentToSpouseNode[parentId];
+      const spouseNode = parentToSpouseNode[parentId]
 
       if (spouseNode) {
         // route: spouseNode → child
@@ -189,16 +180,16 @@ export function addSpouseAndRerouteParents(
           ...e, // preserve id/type/data except source
           source: spouseNode,
           target: childId,
-        });
+        })
       } else {
         // no spouse, keep parent as source
-        newEdges.push(e);
+        newEdges.push(e)
       }
     } else {
       // keep other edge types as is
-      newEdges.push(e);
+      newEdges.push(e)
     }
-  });
+  })
 
-  return { nodes: newNodes, edges: newEdges };
+  return { nodes: newNodes, edges: newEdges }
 }

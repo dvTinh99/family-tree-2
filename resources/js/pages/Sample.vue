@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { h, onMounted, ref, nextTick } from 'vue'
+import { h, onMounted, ref, nextTick, reactive } from 'vue'
 import { Background } from '@vue-flow/background'
 import { Edge, MarkerType, Node, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import PersonNode from '@/components/nodes/PersonNode.vue'
 import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTreeLayout'
 import SpouseNode from '@/components/nodes/SpouseNode.vue'
+import PersonModal from '@/components/PersonModal.vue'
+import { useFamilyTreeStore } from '@/store/familyTree'
 
-const isLoading = ref(true)
+const isLoading = ref(false)
 const nodes = ref<any[]>([
   {
     id: '1',
@@ -23,12 +25,12 @@ const nodes = ref<any[]>([
   {
     id: '3',
     type: 'person',
-    data: {}
+    data: {},
   },
   {
     id: '4',
     type: 'person',
-    data: {}
+    data: {},
   },
 ])
 const edges = ref<Edge[]>([
@@ -59,12 +61,16 @@ const edges = ref<Edge[]>([
     sourceHandle: 'bottom-source',
     targetHandle: 'top-target',
   },
-  
 ])
+
+const familyStore = useFamilyTreeStore()
 
 const { fitView } = useVueFlow()
 async function layoutGraph(direction) {
-  const { nodes: nodesFormat, edges: edgesFormat} = addSpouseAndRerouteParents(nodes.value, edges.value)
+  const { nodes: nodesFormat, edges: edgesFormat } = addSpouseAndRerouteParents(
+    nodes.value,
+    edges.value
+  )
 
   nodes.value = familyTreeLayout(nodesFormat, edgesFormat)
   // nodes.value = nodeGraph
@@ -74,15 +80,47 @@ async function layoutGraph(direction) {
   })
   isLoading.value = false
 }
+const relationForm = reactive({
+  sourceId: '',
+  relationType: '',
+  name: '',
+  birth: '',
+  avatar: '',
+})
+const selectedPerson = ref(null)
+function handleCloseModal() {
+  showPersonModal.value = false
+  selectedPerson.value = null
+}
 
-onMounted(() => nextTick(() => layoutGraph('TB')))
+function onAddRelationIntent({ sourceId, relationType }) {
+  relationForm.sourceId = sourceId
+  relationForm.relationType = relationType
+  relationForm.name = '' // optional default
+  relationForm.birth = ''
+  relationForm.avatar = `https://i.pravatar.cc/80?u=${Date.now()}`
+  showPersonModal.value = true
+}
+
+const showPersonModal = ref(false)
+
+function onNodeClick({ event, node }) {
+  console.log('node clicked', node, event)
+
+  familyStore.setNodeSelected(node)
+}
+
+// onMounted(() => nextTick(() => layoutGraph('TB')))
 </script>
 
 <template>
   <div class="h-screen w-screen" v-if="!isLoading">
-    <VueFlow :nodes="nodes" :edges="edges">
+    <div v-if="showPersonModal">
+      <PersonModal v-model="relationForm" @cancel="() => (showPersonModal = false)" />
+    </div>
+    <VueFlow v-model:nodes="familyStore.nodes" :edges="familyStore.edges" @node-click="onNodeClick">
       <template #node-person>
-        <PersonNode />
+        <PersonNode @add-relation="onAddRelationIntent" />
       </template>
       <template #node-spouse>
         <SpouseNode />

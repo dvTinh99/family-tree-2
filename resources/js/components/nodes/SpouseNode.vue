@@ -59,7 +59,7 @@ function emitToggleBranch() {
     <Handle type="source" :position="Position.Right" id="right-source" />
 
     <!-- ...existing markup (avatar, toolbar, text) ... -->
-     <FamilyIcon class="w-[30px] h-[30px]"/>
+    <FamilyIcon class="w-[30px] h-[30px]" />
   </div>
 </template>
 

@@ -1,16 +1,38 @@
-<script setup>
+<script setup lang="ts">
+import { useFamilyTreeStore } from '@/store/familyTree'
 import { ref, watch, toRefs } from 'vue'
 const emit = defineEmits(['confirm', 'cancel'])
 
-const person = defineModel()
-
-const name = ref('')
-const birth = ref('')
-const avatar = ref('')
+const person = ref({
+  relationType: '',
+  name: '',
+  birth: '',
+  avatar: '',
+  type: 'person'
+})
+const familyStore = useFamilyTreeStore()
 
 function doConfirm() {
-  emit('confirm', { name: name.value.trim(), birth: birth.value, avatar: avatar.value })
+  addNodeAndRelation(person.value.relationType)
 }
+
+function addNodeAndRelation(relation: string) {
+  switch (relation) {
+    case 'child':
+      familyStore.addChild(person.value)
+      break
+    case 'mother':
+      return 'child'
+    case 'spouse':
+      familyStore.addSpouse(person.value)
+      break
+    case 'sibling':
+      return 'sibling'
+    default:
+      return 'parent'
+  }
+}
+
 
 function doCancel() {
   emit('cancel')
@@ -23,7 +45,7 @@ function doCancel() {
     <aside class="w-80 h-full bg-white rounded-l-lg shadow-lg p-4 overflow-auto">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold">
-          Add {{ person.relationType ? person.relationType : 'Person' }}
+          Add {{ person?.relationType ? person.relationType : 'Person' }}
         </h3>
         <button @click="doCancel" class="text-gray-500 hover:text-gray-700">✕</button>
       </div>

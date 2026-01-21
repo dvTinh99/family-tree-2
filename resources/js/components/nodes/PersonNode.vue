@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Handle, Position } from '@vue-flow/core'
+import { Handle, Node, Position } from '@vue-flow/core'
 import { NodeToolbar } from '@vue-flow/node-toolbar'
 import { computed, ref } from 'vue'
+import personIcon from '@/assets/svgs/person.svg'
 
 const props = defineProps({
   id: String,
@@ -16,7 +17,7 @@ const emit = defineEmits(['add-relation', 'toggle-branch'])
 
 const name = computed(() => props.id || props.label || 'Unknown')
 const birth = computed(() => props.data?.birth || '')
-const avatar = computed(() => props.data?.avatar || 'https://i.pravatar.cc/80')
+const avatar = computed(() => props.data?.avatar)
 const age = computed(() => {
   if (!birth.value) return ''
   const b = new Date(birth.value)
@@ -89,10 +90,15 @@ function emitToggleBranch() {
       </NodeToolbar>
 
       <img
+        v-if="avatar"
         :src="avatar"
         alt="avatar"
         style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover"
       />
+      <div v-else>
+        <personIcon class="w-[50px] h-[50px]"/>
+      </div>
+      
       <div style="text-align: left; flex: 1; line-height: 1">
         <div style="font-weight: 700; font-size: 14px; color: #111827">{{ name }}</div>
         <div style="font-size: 12px; color: #6b7280; margin-top: 4px">

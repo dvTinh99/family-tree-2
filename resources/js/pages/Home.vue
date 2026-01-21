@@ -72,7 +72,7 @@ function confirmAddRelation() {
     data: { relation: relationForm.relationType },
   })
 
-  const {nodes: nodeFormat, edges: edgeFormat} = familyStore.renderGraph(nodes.value, edges.value)
+  const { nodes: nodeFormat, edges: edgeFormat } = familyStore.renderGraph(nodes.value, edges.value)
 
   nodes.value = nodeFormat
   edges.value = edgeFormat
@@ -128,19 +128,31 @@ function onNodeClick({ node }) {
 function getHighlightIds(nodeId: string) {
   const highlights = new Set([nodeId])
   // find spouse node
-  const spouseEdge = edges.value.find(e => e.data?.relation === 'spouse' && (e.source === nodeId || e.target === nodeId))
+  const spouseEdge = edges.value.find(
+    (e) => e.data?.relation === 'spouse' && (e.source === nodeId || e.target === nodeId)
+  )
   if (spouseEdge) {
     const spouseId = spouseEdge.source === nodeId ? spouseEdge.target : spouseEdge.source
     highlights.add(spouseId)
     // add other spouses
-    edges.value.filter(e => e.data?.relation === 'spouse' && e.source === spouseId).forEach(e => highlights.add(e.target))
-    edges.value.filter(e => e.data?.relation === 'spouse' && e.target === spouseId).forEach(e => highlights.add(e.source))
+    edges.value
+      .filter((e) => e.data?.relation === 'spouse' && e.source === spouseId)
+      .forEach((e) => highlights.add(e.target))
+    edges.value
+      .filter((e) => e.data?.relation === 'spouse' && e.target === spouseId)
+      .forEach((e) => highlights.add(e.source))
     // add children
-    edges.value.filter(e => e.data?.relation === 'parent' && e.source === spouseId).forEach(e => highlights.add(e.target))
+    edges.value
+      .filter((e) => e.data?.relation === 'parent' && e.source === spouseId)
+      .forEach((e) => highlights.add(e.target))
   } else {
     // if no spouse, direct
-    edges.value.filter(e => e.source === nodeId && e.data?.relation === 'parent').forEach(e => highlights.add(e.target))
-    edges.value.filter(e => e.target === nodeId && e.data?.relation === 'parent').forEach(e => highlights.add(e.source))
+    edges.value
+      .filter((e) => e.source === nodeId && e.data?.relation === 'parent')
+      .forEach((e) => highlights.add(e.target))
+    edges.value
+      .filter((e) => e.target === nodeId && e.data?.relation === 'parent')
+      .forEach((e) => highlights.add(e.source))
   }
   return highlights
 }
