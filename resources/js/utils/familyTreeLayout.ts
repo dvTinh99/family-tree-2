@@ -19,7 +19,7 @@ export function familyTreeLayout(
 
   g.setGraph({
     rankdir: direction,
-    ranksep: 100, // vertical spacing between generations
+    ranksep: 50, // vertical spacing between generations
     nodesep: 100, // horizontal spacing between nodes
   })
 
@@ -50,13 +50,22 @@ export function familyTreeLayout(
   const layouted = nodes.map((n) => {
     const { x, y } = g.node(n.id) // center coords
     if (n.type == 'spouse') {
+      console.log('spouse ne', n);
+      const [sourceId, targetId] = n.id.split('-').slice(1)
+      const dadNode = g.node(sourceId)
+      const momNode = g.node(targetId)
+      console.log('dadNode, momNode', dadNode.x, momNode.x);
+      const center = ((dadNode.x + momNode.x) / 2) + 70;
+
+      console.log('center', center);
+      
       return {
         ...n,
         position: {
-          // adjust to top-left (Vue Flow expects top-left position)
+          // adjust to top-left (Vue F`low expects top-left position)
           // x: x - (n.__rf?.width ?? DEFAULT_W) / 2,
           // y: y - (n.__rf?.height ?? DEFAULT_H) / 2,
-          x: x + 70,
+          x: center,
           y,
         },
       }
@@ -129,7 +138,7 @@ export function addSpouseAndRerouteParents(
           id: marriageId,
           type: 'spouse',
           position: { x: 0, y: 0 },
-          data: { width: 500, height: 50 },
+          data: { width: 50, height: 50 },
           // style: { opacity: 0, pointerEvents: "none" },
         })
 
@@ -164,7 +173,7 @@ export function addSpouseAndRerouteParents(
   edges.forEach((e) => {
     // ignore original spouse edges — we already made new ones
     if (e.data?.relation === 'spouse') {
-      newEdges.push(e)
+      return
     }
 
     if (e.data?.relation === 'parent') {
