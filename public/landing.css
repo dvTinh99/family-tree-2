@@ -1,6 +1,5 @@
-/* Small custom styles for layout & accessibility */
 :root {
-  --accent: #4f46e5;
+  --accent: #10b981; /* emerald-500 (light green) */
   --muted: #6b7280;
   --bg: #f8fafc;
 }
@@ -24,7 +23,7 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: linear-gradient(135deg, #eef2ff, #ffffff);
+  background: linear-gradient(135deg, #ecfdf5, #ffffff); /* subtle green tint */
   color: var(--accent);
 }
 
