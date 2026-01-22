@@ -1,0 +1,62 @@
+/* Small custom styles for layout & accessibility */
+:root {
+  --accent: #4f46e5;
+  --muted: #6b7280;
+  --bg: #f8fafc;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+.hero-visual {
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.08);
+  overflow: hidden;
+  background: #fff;
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #eef2ff, #ffffff);
+  color: var(--accent);
+}
+
+.kicker {
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.cta-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.sr-only {
+  position: absolute;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .no-motion {
+    transition: none !important;
+  }
+}
