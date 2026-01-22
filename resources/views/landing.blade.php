@@ -91,8 +91,8 @@
 
       <div class="hero-visual p-4 fade-in" aria-hidden="true">
         <!-- Placeholder screenshot; replace with real screenshot or embed iframe / demo -->
-        <img src="https://images.unsplash.com/photo-1542736667-069246bdbc93?w=1200&q=60&auto=format&fit=crop" alt="Interactive family tree preview" class="w-full rounded-md shadow-sm" />
-        <figcaption class="mt-2 text-xs text-muted">Interactive editor preview (click Demo to open live)</figcaption>
+        <img src="http://app.family.test/images/demo.webp" alt="Interactive family tree preview" class="w-full rounded-md shadow-sm" />
+        {{-- <figcaption class="mt-2 text-xs text-muted">Interactive editor preview (click Demo to open live)</figcaption> --}}
       </div>
     </section>
 

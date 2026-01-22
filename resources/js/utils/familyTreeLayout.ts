@@ -55,7 +55,7 @@ export function familyTreeLayout(
       const dadNode = g.node(sourceId)
       const momNode = g.node(targetId)
       console.log('dadNode, momNode', dadNode.x, momNode.x);
-      const center = ((dadNode.x + momNode.x) / 2) + 70;
+      const center = ((dadNode.x + momNode.x) / 2) + 75;
 
       console.log('center', center);
       
