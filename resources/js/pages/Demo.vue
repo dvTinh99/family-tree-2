@@ -7,6 +7,7 @@ import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTree
 import SpouseNode from '@/components/nodes/SpouseNode.vue'
 import PersonModal from '@/components/PersonModal.vue'
 import { useFamilyTreeStore } from '@/store/familyTree'
+import AnimationEdge from '@/components/edges/AnimationEdge.vue'
 
 const isLoading = ref(false)
 const nodes = ref<any[]>([
@@ -183,22 +184,41 @@ onMounted(() => nextTick(() => layoutGraph('TB')))
     <div v-if="showPersonModal">
       <PersonModal v-model="relationForm" @cancel="() => (showPersonModal = false)" />
     </div>
-    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick">
+    <VueFlow 
+      :nodes="nodes" 
+      :edges="edges" 
+      :default-edge-options="{ type: 'animation', animated: true }"
+      @node-click="onNodeClick" 
+    >
       <template #node-person="personNodeProps">
         <PersonNode v-bind="personNodeProps" @add-relation="onAddRelationIntent" />
       </template>
       <template #node-spouse>
         <SpouseNode />
       </template>
+      <template #edge-animation="edgeProps">
+        <AnimationEdge
+          :id="edgeProps.id"
+          :source="edgeProps.source"
+          :target="edgeProps.target"
+          :source-x="edgeProps.sourceX"
+          :source-y="edgeProps.sourceY"
+          :targetX="edgeProps.targetX"
+          :targetY="edgeProps.targetY"
+          :source-position="edgeProps.sourcePosition"
+          :target-position="edgeProps.targetPosition"
+          :data="edgeProps.data"
+        />
+      </template>
       <Background />
 
-      <Panel class="process-panel" position="top-right">
+      <!-- <Panel class="process-panel" position="top-right">
         <div class="layout-panel">
           <button title="set horizontal layout" @click="layoutGraph('LR')">Horizon</button>
 
           <button title="set vertical layout" @click="layoutGraph('TB')">vertical</button>
         </div>
-      </Panel>
+      </Panel> -->
     </VueFlow>
   </div>
 </template>
