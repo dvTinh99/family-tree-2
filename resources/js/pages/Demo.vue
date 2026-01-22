@@ -128,8 +128,9 @@ const edges = ref<Edge[]>([
 
 const familyStore = useFamilyTreeStore()
 
-const { fitView } = useVueFlow()
+const { fitView, nodesDraggable } = useVueFlow()
 async function layoutGraph(direction: string = 'TB') {
+  nodesDraggable.value = false
   const { nodes: nodesFormat, edges: edgesFormat } = addSpouseAndRerouteParents(
     nodes.value,
     edges.value
