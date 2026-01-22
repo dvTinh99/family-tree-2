@@ -87,7 +87,7 @@
 
             <div class="hero-visual p-4 fade-in" aria-hidden="true">
                 <!-- Placeholder screenshot; replace with real screenshot or embed iframe / demo -->
-                <img src="http://app.family.test/images/demo.webp" alt="Interactive family tree preview"
+                <img src="/images/demo.webp" alt="Interactive family tree preview"
                     class="w-full rounded-md shadow-sm" />
                 {{-- <figcaption class="mt-2 text-xs text-muted">Interactive editor preview (click Demo to open live)</figcaption> --}}
             </div>
