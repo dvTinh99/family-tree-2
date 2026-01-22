@@ -7,7 +7,17 @@ import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTree
 import SpouseNode from '@/components/nodes/SpouseNode.vue'
 import PersonModal from '@/components/PersonModal.vue'
 import { useFamilyTreeStore } from '@/store/familyTree'
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 const isLoading = ref(false)
 const nodes = ref<any[]>([
   {
@@ -115,6 +125,32 @@ function onNodeClick({ event, node }) {
 
 <template>
   <div class="h-screen w-screen" v-if="!isLoading">
+  <Dialog>
+    <!-- Nút mở dialog -->
+    <DialogTrigger as-child>
+      <Button variant="outline">Open Dialog</Button>
+    </DialogTrigger>
+
+    <!-- Nội dung dialog -->
+    <DialogContent class="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>Edit Profile</DialogTitle>
+        <DialogDescription>
+          Make changes here and save when done.
+        </DialogDescription>
+      </DialogHeader>
+
+      <!-- Actions / Footer -->
+      <DialogFooter>
+        <DialogClose asChild>
+          <Button variant="secondary">Cancel</Button>
+        </DialogClose>
+        <DialogClose>
+          <Button>Save changes</Button>
+        </DialogClose>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
     <div v-if="showPersonModal">
       <PersonModal v-model="relationForm" @cancel="() => (showPersonModal = false)" />
     </div>
