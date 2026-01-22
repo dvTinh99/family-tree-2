@@ -253,19 +253,19 @@
 
             <div class="mt-6 grid gap-4 md:grid-cols-3">
                 <figure class="bg-white p-3 rounded-lg shadow-sm fade-in">
-                    <img src="https://via.placeholder.com/600x360?text=Editor+Preview"
+                    <img src="images/demo.webp"
                         alt="Family tree editor preview screenshot" class="w-full rounded-md demo-img" />
                     <figcaption class="text-xs text-gray-500 mt-2">Editor preview — add nodes and relations
                     </figcaption>
                 </figure>
                 <figure class="bg-white p-3 rounded-lg shadow-sm fade-in">
-                    <img src="https://via.placeholder.com/600x360?text=Auto+Layout" alt="Auto layout example"
+                    <img src="images/demo.webp" alt="Auto layout example"
                         class="w-full rounded-md demo-img" />
                     <figcaption class="text-xs text-gray-500 mt-2">Auto layout handling spouses and parents
                     </figcaption>
                 </figure>
                 <figure class="bg-white p-3 rounded-lg shadow-sm fade-in">
-                    <img src="https://via.placeholder.com/600x360?text=Collapse+Branches"
+                    <img src="images/demo.webp"
                         alt="Collapsed branches preview" class="w-full rounded-md demo-img" />
                     <figcaption class="text-xs text-gray-500 mt-2">Collapse long branches for focus</figcaption>
                 </figure>

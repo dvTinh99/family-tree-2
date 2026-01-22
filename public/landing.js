@@ -32,14 +32,12 @@ if (typeof gsap !== 'undefined') {
         });
         gsap.from('.hero-cta', {
             scale: 0.98,
-            opacity: 0,
             duration: 0.7,
             delay: 0.38,
             ease: 'back.out(1.1)'
         });
     } else {
         gsap.from('.hero-title, .hero-sub, .hero-cta', {
-            opacity: 0,
             duration: 0.6
         });
     }
