@@ -17,6 +17,8 @@
     <meta property="og:url" content="/" />
     <meta property="og:image" content="/preview.png" />
 
+    <link rel="icon" type="image/x-icon" href="/images/logo.webp">
+
     <!-- Tailwind via CDN (no build tools) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -32,12 +34,9 @@
     <header class="bg-white/60 backdrop-blur sticky top-0 z-50 border-b">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <a href="/" class="flex items-center gap-3" aria-label="Family Tree Builder Home">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden>
-                    <rect width="24" height="24" rx="6" fill="#eef2ff" />
-                    <path
-                        d="M8 13c1.657 0 3-1.567 3-3.5S9.657 6 8 6 5 7.567 5 9.5 6.343 13 8 13zM16 11a2 2 0 100-4 2 2 0 000 4z"
-                        fill="#4f46e5" />
-                </svg>
+                <div id="logo" class="w-9 h-9">
+                    <img src="images/logo.webp" alt="">
+                </div>
                 <span class="font-semibold">Family Tree Builder</span>
             </a>
             <nav aria-label="Top" class="flex items-center gap-4">
