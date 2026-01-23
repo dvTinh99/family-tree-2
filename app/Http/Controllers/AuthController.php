@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AuthRequest;
 use App\Models\User;
-use Exception;
+use App\Services\NodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -13,9 +13,19 @@ use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Exception;
+
+use function Termwind\parse;
 
 class AuthController extends Controller
 {
+    protected $nodeService;
+
+    public function __construct(NodeService $nodeService)
+    {
+        $this->nodeService = $nodeService;
+    }
+
     public function register(AuthRequest $request)
     {
         try {
@@ -25,6 +35,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
+            $this->nodeService->makeDefaultNode($user);
             $access_token = JWTAuth::fromUser($user);
             $refresh_token = auth('api')->setTTL(43200)->claims(['is_refresh_token' => true])->login($user);
             DB::commit();
@@ -38,8 +49,8 @@ class AuthController extends Controller
 
     public function redirectToApplication($accessToken, $refreshToken)
     {
-        $scheme = request()->getScheme(); // http hoặc https
-        $host   = request()->getHost();   // family.test
+        $scheme = request()->getScheme();  // http hoặc https
+        $host = request()->getHost();  // family.test
         $port = request()->getPort();
         Log::debug('host', [$host]);
         $newUrl = $scheme . '://app.' . $host . ":$port/handle-auth?access_token=$accessToken&refresh_token=$refreshToken";
@@ -96,15 +107,15 @@ class AuthController extends Controller
 
     public function handleGoogleCallback()
     {
-        $googleUser = Socialite::driver('google')->stateless()->user(); // nếu bạn dùng API
+        $googleUser = Socialite::driver('google')->stateless()->user();  // nếu bạn dùng API
         $user = User::where('google_id', $googleUser->id)->first();
 
-        if (! $user) {
+        if (!$user) {
             $user = User::create([
-                'name'      => $googleUser->name,
-                'email'     => $googleUser->email,
+                'name' => $googleUser->name,
+                'email' => $googleUser->email,
                 'google_id' => $googleUser->id,
-                'password'  => bcrypt(Str::random(16)),
+                'password' => bcrypt(Str::random(16)),
             ]);
         }
 
@@ -113,7 +124,8 @@ class AuthController extends Controller
         return redirect($url);
     }
 
-    private function getTokens(User $user) {
+    private function getTokens(User $user)
+    {
         $access_token = JWTAuth::fromUser($user);
         $refresh_token = auth('api')->setTTL(43200)->claims(['is_refresh_token' => true])->login($user);
         return [

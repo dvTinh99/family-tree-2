@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, watchEffect } from 'vue'
 import type { Node, Edge } from '@vue-flow/core'
 import { useApi } from '@/composables/useApi'
 import {
@@ -21,8 +21,6 @@ export const useFamilyStore = defineStore(
     // getters
     const nodeCount = computed(() => nodes.value.length)
     const formatGraph = computed(() => {
-      // if (!nodeSelected.value) return renderGraph()
-
       const graphNodes = renderGraph()
       const highlightIds = getHighlightIds(nodeSelected?.value?.id)
 
@@ -37,9 +35,14 @@ export const useFamilyStore = defineStore(
     const nodes = ref<Node[]>(formatGraph.value.nodes)
     const edges = ref<Edge[]>(formatGraph.value.edges)
     const selectedNode = nodeSelected.value
-    watch(nodeSelected, () => recountNodeAndEdges())
-    watch(nodesOrigin, () => recountNodeAndEdges())
-    watch(edgesOrigin, () => recountNodeAndEdges())
+
+    watchEffect(() => {
+      onChange(nodeSelected, nodesOrigin, edgesOrigin)
+    })
+
+    function onChange(...params: any[]) {
+      recountNodeAndEdges()
+    }
 
     function recountNodeAndEdges() {
       nodes.value = formatGraph.value.nodes
@@ -47,19 +50,12 @@ export const useFamilyStore = defineStore(
     }
 
     // actions
-
     async function initStore() {
       const { data, error, isLoading } = await useApi<{ nodes: Node[]; edges: Edge[] }>(
         '/api/family-tree'
       )
-      console.log('datane', data.value)
-
-      const { nodes: nodeResult, edges: edgeResult } = renderGraph(
-        data.value?.nodes || [],
-        data.value?.edges || []
-      )
-      nodesOrigin.value = nodeResult
-      edgesOrigin.value = edgeResult
+      nodesOrigin.value = data.value?.nodes as Node[]
+      edgesOrigin.value = data.value?.edges as Edge[]
     }
 
     function renderGraph(nodesParam?: Node[], edgesParam?: Edge[]) {

@@ -9,7 +9,11 @@ Route::get('/test', function() {
     return 'ok';
 });
 
-Route::get('/family-tree', [FamilyTreeController::class, 'index']);
+Route::middleware('auth:api')->group(function () {
+
+    Route::get('/family-tree', [FamilyTreeController::class, 'index']);
+});
+
 
 Route::group([
     'middleware' => 'api',

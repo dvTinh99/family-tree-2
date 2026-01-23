@@ -13,7 +13,7 @@ class UploadService
         $signature = sha1("timestamp={$timestamp}" . env('CLOUDINARY_API_SECRET'));
 
         $response = Http::asMultipart()->post(
-            "https://api.cloudinary.com/v1_1/" . env('CLOUDINARY_CLOUD_NAME') . "/image/upload",
+            'https://api.cloudinary.com/v1_1/' . env('CLOUDINARY_CLOUD_NAME') . '/image/upload',
             [
                 'file' => fopen($file->getRealPath(), 'r'),
                 'api_key' => env('CLOUDINARY_API_KEY'),
@@ -22,16 +22,16 @@ class UploadService
             ]
         );
 
-        return $response->json(); // trả về url + public_id
+        return $response->json();  // trả về url + public_id
     }
 
+    // config .env
+    // CLOUDINARY_API_SECRET=your_secret_here
+    // CLOUDINARY_API_KEY=your_api_key
+    // CLOUDINARY_CLOUD_NAME=your_cloud_name
 
-// config .env
-// CLOUDINARY_API_SECRET=your_secret_here
-// CLOUDINARY_API_KEY=your_api_key
-// CLOUDINARY_CLOUD_NAME=your_cloud_name
-
-    public function cloudinary_signature(array $paramsToSign): string {
+    public function cloudinary_signature(array $paramsToSign): string
+    {
         // Loại bỏ file, api_key, cloud_name, resource_type nếu có
         // $paramsToSign là associative array của các param bạn muốn sign,
         // ví dụ ['timestamp' => ..., 'public_id' => 'my_image', 'folder' => 'avatars']
@@ -49,12 +49,12 @@ class UploadService
         return sha1($stringToSign);
     }
 
-    public function generateSignature() {
-
+    public function generateSignature()
+    {
         // Ví dụ sử dụng:
         $params = [
             'timestamp' => time(),
-            'folder' => "resume"
+            'folder' => 'resume'
         ];
         $signature = $this->cloudinary_signature($params);
 

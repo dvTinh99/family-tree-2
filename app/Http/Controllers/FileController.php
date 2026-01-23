@@ -12,6 +12,7 @@ class FileController extends Controller
     {
         $this->uploadService = $uploadService;
     }
+
     public function generateUrl()
     {
         return $this->uploadService->generateSignature();

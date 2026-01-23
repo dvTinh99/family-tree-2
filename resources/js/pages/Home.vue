@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onMounted, ref, nextTick, reactive, computed } from 'vue'
+import { h, onMounted, ref, nextTick, reactive, computed, onBeforeMount } from 'vue'
 import { Background } from '@vue-flow/background'
 import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import type { Edge, Node } from '@vue-flow/core'
@@ -32,7 +32,6 @@ const authStore = useAuthStore()
 
 const { fitView, nodesDraggable, setViewport, setNodesSelection } = useVueFlow()
 async function layoutGraph(direction: string = 'TB') {
-  console.log('demo me')
   familyStore.$reset()
 
   nextTick(() => {
@@ -95,11 +94,15 @@ function resetTransform() {
   setViewport({ x: 0, y: 0, zoom: 1 })
 }
 
-onMounted(() =>
+onBeforeMount(async () => {
+  await familyStore.initStore()
+})
+
+onMounted(async () => {
   nextTick(() => {
     layoutGraph('TB')
   })
-)
+})
 </script>
 
 <template>

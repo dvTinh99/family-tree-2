@@ -1,6 +1,7 @@
 import router from '@/router/router'
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'
+import { useFamilyStore } from './family'
 
 export interface IUser {
   email: string
@@ -24,6 +25,9 @@ export const useAuthStore = defineStore(
       console.log('vao init')
 
       login(accessToken, refreshToken)
+      // fetch family
+      // const familyStore = useFamilyStore()
+      // await familyStore.initStore()
     }
 
     // Actions
@@ -31,6 +35,9 @@ export const useAuthStore = defineStore(
       state.access_token = access_token
       state.refresh_token = refresh_token
       state.isLoggedIn = true
+
+      localStorage.setItem('authToken', access_token)
+      localStorage.setItem('refreshToken', refresh_token)
     }
 
     function logout() {

@@ -26,55 +26,68 @@ class AuthRequest extends FormRequest
         $method = $this->method();
         Log::debug('vao rule', [$method]);
 
-        switch($method) {
-            case 'GET' : {
-                Log::debug('get ne');
-                return $this->getRequest();
-            }
-            case 'POST' : {
-                Log::debug('posst ne');
-                return $this->postRequest();
-            }
-            case 'PUT' : {
-                Log::debug('put ne');
-                return $this->putRequest();
-            }
-            case 'DELETE' : {
-                Log::debug('delete ne');
-                return $this->deleteRequest();
-            }
+        switch ($method) {
+            case 'GET':
+                {
+                    Log::debug('get ne');
+                    return $this->getRequest();
+                }
+            case 'POST':
+                {
+                    Log::debug('posst ne');
+                    return $this->postRequest();
+                }
+            case 'PUT':
+                {
+                    Log::debug('put ne');
+                    return $this->putRequest();
+                }
+            case 'DELETE':
+                {
+                    Log::debug('delete ne');
+                    return $this->deleteRequest();
+                }
         }
     }
 
-    public function getRequest(){
+    public function getRequest()
+    {
         return [];
     }
-    public function postRequest(){
+
+    public function postRequest()
+    {
         $routeName = $this->route()->getName();
         Log::debug('vao post');
-        switch($routeName) {
-            case 'register.post' : {
-                Log::debug('vao register');
-                return [
-                    'name' => 'required|string|max:255',
-                    'email' => 'required|string|email|max:255|unique:users',
-                    'password' => 'required|string|min:6|confirmed',
-                ];
-            }
-            case 'login.post' : {
-                Log::debug('vao login');
-                return [
-                    'email' => 'required|string|email|min:3|max:255',
-                    'password' => 'required|string|min:6',
-                ];
-            }
+        switch ($routeName) {
+            case 'register.post':
+                {
+                    Log::debug('vao register');
+                    return [
+                        'name' => 'required|string|max:255',
+                        'email' => 'required|string|email|max:255|unique:users',
+                        'password' => 'required|string|min:6|confirmed',
+                    ];
+                }
+            case 'login.post':
+                {
+                    Log::debug('vao login');
+                    return [
+                        'email' => 'required|string|email|min:3|max:255',
+                        'password' => 'required|string|min:6',
+                    ];
+                }
         }
         return [];
     }
-    public function putRequest(){
+
+    public function putRequest()
+    {
         return [];
     }
-    public function deleteRequest(){
+
+    public function deleteRequest()
+    {
         return [];
     }
 }
