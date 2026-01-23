@@ -28,12 +28,19 @@ class AuthController extends Controller
             $access_token = JWTAuth::fromUser($user);
             $refresh_token = auth('api')->setTTL(43200)->claims(['is_refresh_token' => true])->login($user);
             DB::commit();
-            return $this->responseSuccess([
-                'user'           => $user,
-                'access_token'   => $access_token,
-                'refresh_token'  => $refresh_token,
-                'token_type'     => 'bearer',
-            ], 'register success');
+
+            $scheme = request()->getScheme(); // http hoặc https
+            $host   = request()->getHost();   // family.test
+            $path = Request::path(); // url
+            $newUrl = $scheme . '://app.' . $host . '/' . $path;
+
+            // return $this->responseSuccess([
+            //     'user'           => $user,
+            //     'access_token'   => $access_token,
+            //     'refresh_token'  => $refresh_token,
+            //     'token_type'     => 'bearer',
+            // ], 'register success');
+            return redirect("$newUrl?access_token=$access_token&refresh_token=$refresh_token");
         } catch (JWTException $e) {
             DB::rollBack();
             return $this->responseError([], $e->getMessage());

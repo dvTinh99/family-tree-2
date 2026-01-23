@@ -1,7 +1,14 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { BaseEdge, EdgeLabelRenderer, Position, getSmoothStepPath, useNodesData, useVueFlow } from '@vue-flow/core'
-import { ProcessStatus } from '@/composables/useRunProcess';
+import {
+  BaseEdge,
+  EdgeLabelRenderer,
+  Position,
+  getSmoothStepPath,
+  useNodesData,
+  useVueFlow,
+} from '@vue-flow/core'
+import { ProcessStatus } from '@/composables/useRunProcess'
 
 const props = defineProps({
   id: {
@@ -100,7 +107,7 @@ watch(
     if (isCancelled) {
       animation?.cancel()
     }
-  },
+  }
 )
 
 // Run the animation when the source nodes' process is finished
@@ -110,7 +117,7 @@ watch(
     if (isFinished) {
       runAnimation()
     }
-  },
+  }
 )
 
 function runAnimation() {

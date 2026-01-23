@@ -109,7 +109,7 @@ export function useRunProcess({ graph: dagreGraph, cancelOnError = true }) {
           resolve(true)
         },
         // if this is a starting node, we don't want to wait
-        isStart ? 0 : delay,
+        isStart ? 0 : delay
       )
 
       // save the timeout so we can cancel it if needed

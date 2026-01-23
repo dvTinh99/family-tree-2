@@ -50,15 +50,11 @@ export function familyTreeLayout(
   const layouted = nodes.map((n) => {
     const { x, y } = g.node(n.id) // center coords
     if (n.type == 'spouse') {
-      console.log('spouse ne', n);
       const [sourceId, targetId] = n.id.split('-').slice(1)
       const dadNode = g.node(sourceId)
       const momNode = g.node(targetId)
-      console.log('dadNode, momNode', dadNode.x, momNode.x);
-      const center = ((dadNode.x + momNode.x) / 2) + 75;
+      const center = (dadNode.x + momNode.x) / 2 + 75
 
-      console.log('center', center);
-      
       return {
         ...n,
         position: {

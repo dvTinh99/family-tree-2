@@ -31,9 +31,12 @@ Route::get('/login', function () {
 Route::post('/login', function () {
     return view('login');
 })->name('login');
-Route::post('/register', function () {
+
+Route::get('/register', function () {
     return view('register');
 })->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+
 Route::post('/password/request', function () {
     return view('login');
 })->name('password.request');

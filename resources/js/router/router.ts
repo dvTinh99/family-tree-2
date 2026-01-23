@@ -33,4 +33,17 @@ const router = createRouter({
   routes,
 })
 
+router.beforeEach((to, from, next) => {
+  const hasAccess = !!to.query.access_token
+  const hasRefresh = !!to.query.refresh_token
+
+  if (hasAccess && hasRefresh) {
+    // optionally persist tokens here (localStorage/session) before redirecting
+    next({ name: 'home' })
+    return
+  }
+
+  next()
+})
+
 export default router

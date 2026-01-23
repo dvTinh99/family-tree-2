@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { h, onMounted, ref, nextTick, reactive } from 'vue'
+import { h, onMounted, ref, nextTick, reactive, computed } from 'vue'
 import { Background } from '@vue-flow/background'
-import { Edge, MarkerType, Node, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
+import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
+import type { Edge, Node } from '@vue-flow/core'
+import { ControlButton, Controls } from '@vue-flow/controls'
 import PersonNode from '@/components/nodes/PersonNode.vue'
 import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTreeLayout'
 import SpouseNode from '@/components/nodes/SpouseNode.vue'
 import PersonModal from '@/components/PersonModal.vue'
-import { useFamilyTreeStore } from '@/store/familyTree'
+import { useFamilyStore } from '@/store/family'
 import AnimationEdge from '@/components/edges/AnimationEdge.vue'
+import Icon from '@/components/Icon.vue'
 
 const isLoading = ref(false)
-const nodes = ref<any[]>([
+const nodes = ref<Node[]>([
   {
     id: '1',
     type: 'person',
@@ -126,22 +129,10 @@ const edges = ref<Edge[]>([
   },
 ])
 
-const familyStore = useFamilyTreeStore()
+const familyStore = useFamilyStore()
 
-const { fitView, nodesDraggable } = useVueFlow()
+const { fitView, nodesDraggable, setViewport, setNodesSelection } = useVueFlow()
 async function layoutGraph(direction: string = 'TB') {
-  nodesDraggable.value = false
-  const { nodes: nodesFormat, edges: edgesFormat } = addSpouseAndRerouteParents(
-    nodes.value,
-    edges.value
-  )
-
-  console.log('nodesFormat', nodesFormat);
-  console.log('edgesFormat', edgesFormat);
-
-  nodes.value = familyTreeLayout(nodesFormat, edgesFormat)
-  // nodes.value = nodeGraph
-  edges.value = edgesFormat
   nextTick(() => {
     fitView()
   })
@@ -171,13 +162,42 @@ function onAddRelationIntent({ sourceId, relationType }) {
 
 const showPersonModal = ref(false)
 
-function onNodeClick({ event, node }) {
-  console.log('node clicked', node, event)
-
+function onNodeClick({ event, node }: { event: MouseEvent; node: Node }) {
+  isLoading.value = true
   familyStore.setNodeSelected(node)
+  isLoading.value = false
 }
 
-onMounted(() => nextTick(() => layoutGraph('TB')))
+/**
+ * To update a node or multiple nodes, you can
+ * 1. Mutate the node objects *if* you're using `v-model`
+ * 2. Use the `updateNode` method (from `useVueFlow`) to update the node(s)
+ * 3. Create a new array of nodes and pass it to the `nodes` ref
+ */
+function updatePos() {
+  // familyStore.nodes.value = familyStore.nodes.value.map((node) => {
+  //   return {
+  //     ...node,
+  //     position: {
+  //       x: Math.random() * 400,
+  //       y: Math.random() * 400,
+  //     },
+  //   }
+  // })
+}
+
+/**
+ * Resets the current viewport transformation (zoom & pan)
+ */
+function resetTransform() {
+  setViewport({ x: 0, y: 0, zoom: 1 })
+}
+
+onMounted(() =>
+  nextTick(() => {
+    layoutGraph('TB')
+  })
+)
 </script>
 
 <template>
@@ -185,11 +205,15 @@ onMounted(() => nextTick(() => layoutGraph('TB')))
     <div v-if="showPersonModal">
       <PersonModal v-model="relationForm" @cancel="() => (showPersonModal = false)" />
     </div>
-    <VueFlow 
-      :nodes="nodes" 
-      :edges="edges" 
+    <VueFlow
+      v-model:nodes="familyStore.nodes"
+      v-model:edges="familyStore.edges"
       :default-edge-options="{ type: 'animation', animated: true }"
-      @node-click="onNodeClick" 
+      @node-click="onNodeClick"
+      class="basic-flow"
+      :default-viewport="{ zoom: 1.5 }"
+      :min-zoom="0.2"
+      :max-zoom="4"
     >
       <template #node-person="personNodeProps">
         <PersonNode v-bind="personNodeProps" @add-relation="onAddRelationIntent" />
@@ -213,13 +237,22 @@ onMounted(() => nextTick(() => layoutGraph('TB')))
       </template>
       <Background />
 
-      <!-- <Panel class="process-panel" position="top-right">
-        <div class="layout-panel">
-          <button title="set horizontal layout" @click="layoutGraph('LR')">Horizon</button>
+      <Controls position="top-left">
+        <ControlButton title="Reset Transform" @click="resetTransform">
+          <Icon name="reset" />
+        </ControlButton>
 
-          <button title="set vertical layout" @click="layoutGraph('TB')">vertical</button>
-        </div>
-      </Panel> -->
+        <ControlButton title="Shuffle Node Positions" @click="updatePos">
+          <Icon name="update" />
+        </ControlButton>
+      </Controls>
     </VueFlow>
   </div>
 </template>
+<style scoped>
+.basic-flow .vue-flow__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+</style>

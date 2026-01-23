@@ -6,7 +6,7 @@ import PersonNode from '@/components/nodes/PersonNode.vue'
 import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTreeLayout'
 import SpouseNode from '@/components/nodes/SpouseNode.vue'
 import PersonModal from '@/components/PersonModal.vue'
-import { useFamilyTreeStore } from '@/store/familyTree'
+import { useFamilyStore } from '@/store/family'
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-
 
 import { Button } from '@/components/ui/button'
 const isLoading = ref(false)
@@ -88,7 +87,7 @@ const edges = ref<Edge[]>([
   },
 ])
 
-const familyStore = useFamilyTreeStore()
+const familyStore = useFamilyStore()
 
 const { fitView } = useVueFlow()
 async function layoutGraph(direction) {
@@ -140,67 +139,59 @@ function onNodeClick({ event, node }) {
 
 <template>
   <div class="h-screen w-screen" v-if="!isLoading">
-  <Sheet>
-    <SheetTrigger as-child>
-      <Button variant="outline">
-        Open
-      </Button>
-    </SheetTrigger>
-    <SheetContent>
-      <SheetHeader>
-        <SheetTitle>Edit profile</SheetTitle>
-        <SheetDescription>
-          Make changes to your profile here. Click save when you're done.
-        </SheetDescription>
-      </SheetHeader>
-      <div class="grid flex-1 auto-rows-min gap-6 px-4">
-        <div class="grid gap-3">
-          <Label for="sheet-demo-name">Name</Label>
-          <Input id="sheet-demo-name" default-value="Pedro Duarte" />
+    <Sheet>
+      <SheetTrigger as-child>
+        <Button variant="outline"> Open </Button>
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Edit profile</SheetTitle>
+          <SheetDescription>
+            Make changes to your profile here. Click save when you're done.
+          </SheetDescription>
+        </SheetHeader>
+        <div class="grid flex-1 auto-rows-min gap-6 px-4">
+          <div class="grid gap-3">
+            <Label for="sheet-demo-name">Name</Label>
+            <Input id="sheet-demo-name" default-value="Pedro Duarte" />
+          </div>
+          <div class="grid gap-3">
+            <Label for="sheet-demo-username">Username</Label>
+            <Input id="sheet-demo-username" default-value="@peduarte" />
+          </div>
         </div>
-        <div class="grid gap-3">
-          <Label for="sheet-demo-username">Username</Label>
-          <Input id="sheet-demo-username" default-value="@peduarte" />
-        </div>
-      </div>
-      <SheetFooter>
-        <Button type="submit">
-          Save changes
-        </Button>
-        <SheetClose as-child>
-          <Button variant="outline">
-            Close
-          </Button>
-        </SheetClose>
-      </SheetFooter>
-    </SheetContent>
-  </Sheet>
-  <Dialog>
-    <!-- Nút mở dialog -->
-    <DialogTrigger as-child>
-      <Button variant="outline">Open Dialog</Button>
-    </DialogTrigger>
+        <SheetFooter>
+          <Button type="submit"> Save changes </Button>
+          <SheetClose as-child>
+            <Button variant="outline"> Close </Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+    <Dialog>
+      <!-- Nút mở dialog -->
+      <DialogTrigger as-child>
+        <Button variant="outline">Open Dialog</Button>
+      </DialogTrigger>
 
-    <!-- Nội dung dialog -->
-    <DialogContent class="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle>Edit Profile</DialogTitle>
-        <DialogDescription>
-          Make changes here and save when done.
-        </DialogDescription>
-      </DialogHeader>
+      <!-- Nội dung dialog -->
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogDescription> Make changes here and save when done. </DialogDescription>
+        </DialogHeader>
 
-      <!-- Actions / Footer -->
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button variant="secondary">Cancel</Button>
-        </DialogClose>
-        <DialogClose>
-          <Button>Save changes</Button>
-        </DialogClose>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+        <!-- Actions / Footer -->
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Cancel</Button>
+          </DialogClose>
+          <DialogClose>
+            <Button>Save changes</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     <div v-if="showPersonModal">
       <PersonModal v-model="relationForm" @cancel="() => (showPersonModal = false)" />
     </div>

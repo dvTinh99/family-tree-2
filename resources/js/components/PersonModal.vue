@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFamilyTreeStore } from '@/store/familyTree'
+import { useFamilyStore } from '@/store/family'
 import { ref, watch, toRefs } from 'vue'
 const emit = defineEmits(['confirm', 'cancel'])
 
@@ -10,7 +10,7 @@ const person = ref({
   avatar: '',
   type: 'person',
 })
-const familyStore = useFamilyTreeStore()
+const familyStore = useFamilyStore()
 
 function doConfirm() {
   addNodeAndRelation(person.value.relationType)
