@@ -87,19 +87,6 @@ function cancelAddRelation() {
   showRelationDialog.value = false
 }
 
-function clearSelection() {
-  selectedNodeId.value = null
-  familyStore.setNodeSelected(null)
-
-  // reset edge styles and node highlight marker
-  edges.value = edges.value.map((e) => {
-    const copy = { ...e }
-    copy.style = undefined
-    return copy
-  })
-  nodes.value = nodes.value.map((n) => ({ ...n, data: { ...(n.data || {}), _highlight: false } }))
-}
-
 function onNodeClick({ node }) {
   const nodeId = node.id
   selectedNodeId.value = nodeId
@@ -128,13 +115,7 @@ function onToggleBranch(payload) {
         @cancel="cancelAddRelation"
       />
     </div>
-    <VueFlow
-      :nodes="nodes"
-      :edges="edges"
-      fit-view-on-init
-      @node-click="onNodeClick"
-      @pane-click="clearSelection"
-    >
+    <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init @node-click="onNodeClick">
       <template #edge-button="buttonEdgeProps">
         <EdgeWithButton
           :id="buttonEdgeProps.id"

@@ -117,5 +117,6 @@ function emitToggleBranch() {
   transition:
     box-shadow 0.12s ease,
     transform 0.12s ease;
+  border-color: red !important;
 }
 </style>

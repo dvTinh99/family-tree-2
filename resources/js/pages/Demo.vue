@@ -11,123 +11,9 @@ import PersonModal from '@/components/PersonModal.vue'
 import { useFamilyStore } from '@/store/family'
 import AnimationEdge from '@/components/edges/AnimationEdge.vue'
 import Icon from '@/components/Icon.vue'
+import SearchPanel from '@/components/SearchPanel.vue'
 
 const isLoading = ref(false)
-const nodes = ref<Node[]>([
-  {
-    id: '1',
-    type: 'person',
-    label: 'GrandFather',
-    data: { name: 'GrandFather', avatar: 'images/grandfather.svg' },
-  },
-  {
-    id: '2',
-    type: 'person',
-    label: 'GrandMother',
-    data: { name: 'GrandMother', avatar: 'images/grandmother.svg' },
-  },
-  {
-    id: '1.1',
-    type: 'person',
-    label: 'GrandFather',
-    data: { name: 'GrandFather', avatar: 'images/ong_ngoai.svg' },
-  },
-  {
-    id: '2.1',
-    type: 'person',
-    label: 'GrandMother',
-    data: { name: 'GrandMother', avatar: 'images/ba_ngoai.svg' },
-  },
-  {
-    id: '3',
-    type: 'person',
-    label: 'Father',
-    data: { name: 'Father', avatar: 'images/father.svg' },
-  },
-  {
-    id: '4',
-    type: 'person',
-    label: 'Mother',
-    data: { name: 'Mother', avatar: 'images/mother.svg' },
-  },
-  {
-    id: '5',
-    type: 'person',
-    label: 'Me',
-    data: { name: 'Me', avatar: 'images/me.jpeg' },
-  },
-  {
-    id: '6',
-    type: 'person',
-    label: 'Sister',
-    data: { name: 'Sister', avatar: 'images/sister.svg' },
-  },
-])
-const edges = ref<Edge[]>([
-  {
-    id: 'e1',
-    source: '1',
-    target: '2',
-    type: 'step',
-    data: { relation: 'spouse' },
-    sourceHandle: 'right-source',
-    targetHandle: 'left-target',
-  },
-  {
-    id: 'e11',
-    source: '1.1',
-    target: '2.1',
-    type: 'step',
-    data: { relation: 'spouse' },
-    sourceHandle: 'right-source',
-    targetHandle: 'left-target',
-  },
-  {
-    id: 'e2',
-    source: '1',
-    target: '3',
-    type: 'step',
-    data: { relation: 'parent' },
-    sourceHandle: 'bottom-source',
-    targetHandle: 'top-target',
-  },
-  {
-    id: 'e3',
-    source: '1.1',
-    target: '4',
-    type: 'step',
-    data: { relation: 'parent' },
-    sourceHandle: 'bottom-source',
-    targetHandle: 'top-target',
-  },
-  {
-    id: 'e4',
-    source: '3',
-    target: '4',
-    type: 'step',
-    data: { relation: 'spouse' },
-    sourceHandle: 'right-source',
-    targetHandle: 'left-target',
-  },
-  {
-    id: 'e5',
-    source: '3',
-    target: '5',
-    type: 'step',
-    data: { relation: 'parent' },
-    sourceHandle: 'bottom-source',
-    targetHandle: 'top-target',
-  },
-  {
-    id: 'e6',
-    source: '3',
-    target: '6',
-    type: 'step',
-    data: { relation: 'parent' },
-    sourceHandle: 'bottom-source',
-    targetHandle: 'top-target',
-  },
-])
 
 const familyStore = useFamilyStore()
 
@@ -246,6 +132,9 @@ onMounted(() =>
           <Icon name="update" />
         </ControlButton>
       </Controls>
+      <Panel position="top-right">
+        <SearchPanel />
+      </Panel>
     </VueFlow>
   </div>
 </template>
