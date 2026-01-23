@@ -61,7 +61,7 @@ class AuthRequest extends FormRequest
                     'password' => 'required|string|min:6|confirmed',
                 ];
             }
-            case 'login' : {
+            case 'login.post' : {
                 Log::debug('vao login');
                 return [
                     'email' => 'required|string|email|min:3|max:255',

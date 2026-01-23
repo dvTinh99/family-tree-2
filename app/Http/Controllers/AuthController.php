@@ -29,23 +29,22 @@ class AuthController extends Controller
             $refresh_token = auth('api')->setTTL(43200)->claims(['is_refresh_token' => true])->login($user);
             DB::commit();
 
-            $scheme = request()->getScheme(); // http hoặc https
-            $host   = request()->getHost();   // family.test
-            Log::debug('host', [$host]);
-            $newUrl = $scheme . '://app.' . $host . "/home?access_token=$access_token&refresh_token=$refresh_token";
-            Log::debug('newUrl', [$newUrl]);
-
-            // return $this->responseSuccess([
-            //     'user'           => $user,
-            //     'access_token'   => $access_token,
-            //     'refresh_token'  => $refresh_token,
-            //     'token_type'     => 'bearer',
-            // ], 'register success');
-            return redirect($newUrl);
+            return $this->redirectToApplication($access_token, $refresh_token);
         } catch (JWTException $e) {
             DB::rollBack();
             return $this->responseError([], $e->getMessage());
         }
+    }
+
+    public function redirectToApplication($accessToken, $refreshToken)
+    {
+        $scheme = request()->getScheme(); // http hoặc https
+        $host   = request()->getHost();   // family.test
+        $port = request()->getPort();
+        Log::debug('host', [$host]);
+        $newUrl = $scheme . '://app.' . $host . ":$port/handle-auth?access_token=$accessToken&refresh_token=$refreshToken";
+        Log::debug('newUrl', [$newUrl]);
+        return redirect($newUrl);
     }
 
     public function login(AuthRequest $request)
@@ -58,12 +57,14 @@ class AuthController extends Controller
                 Log::debug('token', [$access_token]);
                 $user = auth('api')->setToken($access_token)->user();
                 ['refresh_token' => $refresh_token] = $this->getTokens($user);
-                return $this->responseSuccess([
-                    'user'           => $user,
-                    'access_token'   => $access_token,
-                    'refresh_token'  => $refresh_token,
-                    'token_type'     => 'bearer',
-                ], 'register success');
+
+                return $this->redirectToApplication($access_token, $refresh_token);
+                // return $this->responseSuccess([
+                //     'user'           => $user,
+                //     'access_token'   => $access_token,
+                //     'refresh_token'  => $refresh_token,
+                //     'token_type'     => 'bearer',
+                // ], 'register success');
             } else {
                 return $this->responseError([
                     'message' => 'Username or password incorrect'

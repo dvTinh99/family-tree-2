@@ -12,13 +12,27 @@ import { useFamilyStore } from '@/store/family'
 import AnimationEdge from '@/components/edges/AnimationEdge.vue'
 import Icon from '@/components/Icon.vue'
 import SearchPanel from '@/components/SearchPanel.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useAuthStore } from '@/store/auth'
 
 const isLoading = ref(false)
 
 const familyStore = useFamilyStore()
+const authStore = useAuthStore()
 
 const { fitView, nodesDraggable, setViewport, setNodesSelection } = useVueFlow()
 async function layoutGraph(direction: string = 'TB') {
+  console.log('demo me')
+
   nextTick(() => {
     fitView()
   })
@@ -132,8 +146,24 @@ onMounted(() =>
           <Icon name="update" />
         </ControlButton>
       </Controls>
-      <Panel position="top-right">
+      <Panel position="top-right" class="flex gap-1 items-center">
         <SearchPanel />
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Avatar>
+              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Billing</DropdownMenuItem>
+            <DropdownMenuItem>Team</DropdownMenuItem>
+            <DropdownMenuItem @click="authStore.logout">Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </Panel>
     </VueFlow>
   </div>

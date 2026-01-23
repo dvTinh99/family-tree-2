@@ -49,6 +49,9 @@
                     <li><a href="#contact"
                             class="px-3 py-2 rounded-md border bg-white hover:bg-gray-100">{{ __('messages.nav.contact') }}</a>
                     </li>
+                    <li><a href="/login"
+                            class="px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Login</a>
+                    </li>
                 </ul>
                 <label for="langSelect" class="sr-only">Language</label>
                 <select id="langSelect" aria-label="Select language" class="ml-4 border rounded-md px-2 py-1 text-sm">

@@ -28,12 +28,12 @@ Route::get('/login', function () {
     App::setLocale($locale);
     return view('login');
 });
-Route::post('/login', function () {
-    return view('login');
-})->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
 Route::get('/register', function () {
-    return view('register');
+    $locale = session('locale', 'en');
+    App::setLocale($locale);
+    return view('login');
 })->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 
