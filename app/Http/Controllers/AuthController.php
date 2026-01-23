@@ -31,8 +31,9 @@ class AuthController extends Controller
 
             $scheme = request()->getScheme(); // http hoặc https
             $host   = request()->getHost();   // family.test
-            $path = Request::path(); // url
-            $newUrl = $scheme . '://app.' . $host . '/' . $path;
+            Log::debug('host', [$host]);
+            $newUrl = $scheme . '://app.' . $host . "/home?access_token=$access_token&refresh_token=$refresh_token";
+            Log::debug('newUrl', [$newUrl]);
 
             // return $this->responseSuccess([
             //     'user'           => $user,
@@ -40,7 +41,7 @@ class AuthController extends Controller
             //     'refresh_token'  => $refresh_token,
             //     'token_type'     => 'bearer',
             // ], 'register success');
-            return redirect("$newUrl?access_token=$access_token&refresh_token=$refresh_token");
+            return redirect($newUrl);
         } catch (JWTException $e) {
             DB::rollBack();
             return $this->responseError([], $e->getMessage());

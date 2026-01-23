@@ -4,6 +4,7 @@ import Home from '@/pages/Home.vue'
 import Login from '@/pages/Login.vue'
 import Sample from '@/pages/Sample.vue'
 import Demo from '@/pages/Demo.vue'
+import { useAuthStore } from '@/store/auth'
 
 const routes = [
   {
@@ -38,7 +39,8 @@ router.beforeEach((to, from, next) => {
   const hasRefresh = !!to.query.refresh_token
 
   if (hasAccess && hasRefresh) {
-    // optionally persist tokens here (localStorage/session) before redirecting
+    const authStore = useAuthStore()
+    authStore.init(to.query.access_token as string, to.query.refresh_token as string)
     next({ name: 'home' })
     return
   }

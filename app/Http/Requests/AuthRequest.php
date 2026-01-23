@@ -53,7 +53,7 @@ class AuthRequest extends FormRequest
         $routeName = $this->route()->getName();
         Log::debug('vao post');
         switch($routeName) {
-            case 'register' : {
+            case 'register.post' : {
                 Log::debug('vao register');
                 return [
                     'name' => 'required|string|max:255',

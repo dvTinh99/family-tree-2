@@ -50,7 +50,7 @@
             <h2 class="text-2xl font-bold text-slate-900">Welcome back</h2>
             <p class="mt-1 text-sm text-slate-500">Sign in to manage your family tree</p>
           </div>
-          <img src="{{ asset('images/favicon.png') }}" alt="logo" class="h-8 w-8" onerror="this.style.display='none'">
+          <img src="images/logo.webp" alt="logo" class="h-8 w-8" onerror="this.style.display='none'">
         </header>
 
         @if(session('status'))
