@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onMounted, ref, nextTick, reactive, computed } from 'vue'
+import { h, onMounted, ref, nextTick, reactive, computed, onBeforeUnmount } from 'vue'
 import { Background } from '@vue-flow/background'
 import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import type { Edge, Node } from '@vue-flow/core'
@@ -13,6 +13,7 @@ import AnimationEdge from '@/components/edges/AnimationEdge.vue'
 import Icon from '@/components/Icon.vue'
 import SearchPanel from '@/components/SearchPanel.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { nodesInit, edgesInit } from './initial-elements'
 
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuthStore } from '@/store/auth'
+import { MiniMap } from '@vue-flow/minimap'
 
 const isLoading = ref(false)
 
@@ -32,12 +34,18 @@ const authStore = useAuthStore()
 const { fitView, nodesDraggable, setViewport, setNodesSelection } = useVueFlow()
 async function layoutGraph(direction: string = 'TB') {
   console.log('demo me')
+  familyStore.nodesOrigin = nodesInit
+  familyStore.edgesOrigin = edgesInit
 
   nextTick(() => {
     fitView()
   })
   isLoading.value = false
 }
+
+onBeforeUnmount(() => {
+  familyStore.$reset()
+})
 const relationForm = reactive({
   sourceId: '',
   relationType: '',
@@ -165,6 +173,8 @@ onMounted(() =>
           </DropdownMenuContent>
         </DropdownMenu>
       </Panel>
+
+      <MiniMap />
     </VueFlow>
   </div>
 </template>

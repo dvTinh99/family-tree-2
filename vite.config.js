@@ -12,7 +12,7 @@ export default defineConfig({
       appendTo: 'resources/js/app.ts'
     }),
     laravel({
-      input: ['resources/css/app.css', 'resources/js/app.ts'],
+      input: ['resources/css/app.css', 'resources/css/flow.css', 'resources/js/app.ts'],
       refresh: true,
     }),
     tailwindcss(),

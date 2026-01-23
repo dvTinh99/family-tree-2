@@ -14,7 +14,7 @@ onMounted(() => {
   if (typeof accessToken === 'string' && typeof refreshToken === 'string') {
     authStore.init(accessToken, refreshToken).then(() => {
       // After successful login, redirect to the home page or any other page
-      router.replace({ name: 'demo' })
+      router.replace({ name: 'home' })
     })
   } else {
     // If tokens are missing, redirect to the login page

@@ -1,36 +1,45 @@
 <script setup lang="ts">
-import { h, nextTick, onMounted, reactive, ref } from 'vue'
+import { h, onMounted, ref, nextTick, reactive, computed } from 'vue'
 import { Background } from '@vue-flow/background'
-import { MarkerType, useVueFlow, VueFlow } from '@vue-flow/core'
-import EdgeWithButton from '@/components/EdgeWithButton.vue'
-import CustomEdge from '@/components/CustomEdge.vue'
-import PersonNode from '@/components/nodes/PersonNode.vue'
-import { MiniMap } from '@vue-flow/minimap'
-import PersonModal from '@/components/PersonModal.vue'
-import { useLayout } from '@/composables/useLayout'
-import SearchPanel from '@/components/SearchPanel.vue'
-import { useCollapse } from '@/composables/useCollapse'
+import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import type { Edge, Node } from '@vue-flow/core'
-import { useFamilyStore } from '@/store/family'
+import { ControlButton, Controls } from '@vue-flow/controls'
+import PersonNode from '@/components/nodes/PersonNode.vue'
+import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTreeLayout'
 import SpouseNode from '@/components/nodes/SpouseNode.vue'
+import PersonModal from '@/components/PersonModal.vue'
+import { useFamilyStore } from '@/store/family'
+import AnimationEdge from '@/components/edges/AnimationEdge.vue'
+import Icon from '@/components/Icon.vue'
+import SearchPanel from '@/components/SearchPanel.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-const nodes = ref<Node[]>([])
-const edges = ref<Edge[]>([])
-const selectedNodeId = ref(null)
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useAuthStore } from '@/store/auth'
+import { MiniMap } from '@vue-flow/minimap'
+
+const isLoading = ref(false)
+
 const familyStore = useFamilyStore()
+const authStore = useAuthStore()
 
-const { fitView } = useVueFlow()
+const { fitView, nodesDraggable, setViewport, setNodesSelection } = useVueFlow()
+async function layoutGraph(direction: string = 'TB') {
+  console.log('demo me')
+  familyStore.$reset()
 
-onMounted(async () => {
-  await familyStore.initStore()
-  nodes.value = familyStore.nodes
-  edges.value = familyStore.edges
-
-  await nextTick()
-  fitView()
-})
-
-const showRelationDialog = ref(false)
+  nextTick(() => {
+    fitView()
+  })
+  isLoading.value = false
+}
 const relationForm = reactive({
   sourceId: '',
   relationType: '',
@@ -38,6 +47,11 @@ const relationForm = reactive({
   birth: '',
   avatar: '',
 })
+const selectedPerson = ref(null)
+function handleCloseModal() {
+  showPersonModal.value = false
+  selectedPerson.value = null
+}
 
 function onAddRelationIntent({ sourceId, relationType }) {
   relationForm.sourceId = sourceId
@@ -45,217 +59,123 @@ function onAddRelationIntent({ sourceId, relationType }) {
   relationForm.name = '' // optional default
   relationForm.birth = ''
   relationForm.avatar = `https://i.pravatar.cc/80?u=${Date.now()}`
-  showRelationDialog.value = true
+  showPersonModal.value = true
 }
 
-function confirmAddRelation() {
-  const id = Date.now().toString()
-  const source = nodes.value.find((n) => n.id === relationForm.sourceId)
+const showPersonModal = ref(false)
 
-  nodes.value.push({
-    id,
-    type: 'person',
-    data: {
-      name: relationForm.name || 'New Person',
-      birth: relationForm.birth || '',
-      avatar: relationForm.avatar || `https://i.pravatar.cc/80?u=${id}`,
-    },
-  } as any)
+function onNodeClick({ event, node }: { event: MouseEvent; node: Node }) {
+  isLoading.value = true
+  familyStore.setNodeSelected(node)
+  isLoading.value = false
+}
 
-  edges.value.push({
-    id: `e-${id}`,
-    source: source?.id || '',
-    target: id,
-    // 'bottom-source',
-    // 'top-target',
-    type: 'smoothstep',
-    data: { relation: relationForm.relationType },
+/**
+ * To update a node or multiple nodes, you can
+ * 1. Mutate the node objects *if* you're using `v-model`
+ * 2. Use the `updateNode` method (from `useVueFlow`) to update the node(s)
+ * 3. Create a new array of nodes and pass it to the `nodes` ref
+ */
+function updatePos() {
+  // familyStore.nodes.value = familyStore.nodes.value.map((node) => {
+  //   return {
+  //     ...node,
+  //     position: {
+  //       x: Math.random() * 400,
+  //       y: Math.random() * 400,
+  //     },
+  //   }
+  // })
+}
+
+/**
+ * Resets the current viewport transformation (zoom & pan)
+ */
+function resetTransform() {
+  setViewport({ x: 0, y: 0, zoom: 1 })
+}
+
+onMounted(() =>
+  nextTick(() => {
+    layoutGraph('TB')
   })
-
-  const { nodes: nodeFormat, edges: edgeFormat } = familyStore.renderGraph(nodes.value, edges.value)
-
-  nodes.value = nodeFormat
-  edges.value = edgeFormat
-
-  showRelationDialog.value = false
-
-  // wait DOM update then fit viewport (do not override node positions with resetLayout)
-  nextTick().then(() => fitView({ padding: 0.12 }))
-}
-
-function cancelAddRelation() {
-  showRelationDialog.value = false
-}
-
-function onNodeClick({ node }) {
-  const nodeId = node.id
-  selectedNodeId.value = nodeId
-  familyStore.setNodeSelected(nodeId)
-}
-
-const { resetLayout } = useLayout(nodes, edges)
-const { toggleBranch, collapsedMap } = useCollapse(nodes, edges)
-
-// expose toggle handler used by PersonNode slot
-function onToggleBranch(payload) {
-  toggleBranch(payload.sourceId || payload) // payload may be { sourceId } or id
-}
+)
 </script>
 
 <template>
-  <div class="h-screen w-screen">
-    <!-- <SearchPanel @search="performSearch" @clear="clearSearch" /> -->
-    <button @click="resetLayout" class="layout-reset-btn" title="Reset layout">
-      ⤒ Reset layout
-    </button>
-    <div v-if="showRelationDialog" class="border-l">
-      <PersonModal
-        v-model="relationForm"
-        @confirm="confirmAddRelation"
-        @cancel="cancelAddRelation"
-      />
+  <div class="h-screen w-screen" v-if="!isLoading">
+    <div v-if="showPersonModal">
+      <PersonModal v-model="relationForm" @cancel="() => (showPersonModal = false)" />
     </div>
-    <VueFlow :nodes="nodes" :edges="edges" fit-view-on-init @node-click="onNodeClick">
-      <template #edge-button="buttonEdgeProps">
-        <EdgeWithButton
-          :id="buttonEdgeProps.id"
-          :source-x="buttonEdgeProps.sourceX"
-          :source-y="buttonEdgeProps.sourceY"
-          :target-x="buttonEdgeProps.targetX"
-          :target-y="buttonEdgeProps.targetY"
-          :source-position="buttonEdgeProps.sourcePosition"
-          :target-position="buttonEdgeProps.targetPosition"
-          :marker-end="buttonEdgeProps.markerEnd"
-          :style="buttonEdgeProps.style"
-        />
+    <VueFlow
+      v-model:nodes="familyStore.nodes"
+      v-model:edges="familyStore.edges"
+      :default-edge-options="{ type: 'animation', animated: true }"
+      @node-click="onNodeClick"
+      class="basic-flow"
+      :default-viewport="{ zoom: 1.5 }"
+      :min-zoom="0.2"
+      :max-zoom="4"
+    >
+      <template #node-person="personNodeProps">
+        <PersonNode v-bind="personNodeProps" @add-relation="onAddRelationIntent" />
       </template>
-
-      <template #edge-custom="customEdgeProps">
-        <CustomEdge
-          :id="customEdgeProps.id"
-          :source-x="customEdgeProps.sourceX"
-          :source-y="customEdgeProps.sourceY"
-          :target-x="customEdgeProps.targetX"
-          :target-y="customEdgeProps.targetY"
-          :source-position="customEdgeProps.sourcePosition"
-          :target-position="customEdgeProps.targetPosition"
-          :data="customEdgeProps.data"
-          :marker-end="customEdgeProps.markerEnd"
-          :style="customEdgeProps.style"
-        />
-      </template>
-
       <template #node-spouse>
         <SpouseNode />
       </template>
-
-      <template #node-person="personNodeProps">
-        <PersonNode
-          v-bind="personNodeProps"
-          @add-relation="onAddRelationIntent"
-          @toggle-branch="onToggleBranch"
+      <template #edge-animation="edgeProps">
+        <AnimationEdge
+          :id="edgeProps.id"
+          :source="edgeProps.source"
+          :target="edgeProps.target"
+          :source-x="edgeProps.sourceX"
+          :source-y="edgeProps.sourceY"
+          :targetX="edgeProps.targetX"
+          :targetY="edgeProps.targetY"
+          :source-position="edgeProps.sourcePosition"
+          :target-position="edgeProps.targetPosition"
+          :data="edgeProps.data"
         />
       </template>
-
       <Background />
+
+      <Controls position="top-left">
+        <ControlButton title="Reset Transform" @click="resetTransform">
+          <Icon name="reset" />
+        </ControlButton>
+
+        <ControlButton title="Shuffle Node Positions" @click="updatePos">
+          <Icon name="update" />
+        </ControlButton>
+      </Controls>
+      <Panel position="top-right" class="flex gap-1 items-center">
+        <SearchPanel />
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Avatar>
+              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Billing</DropdownMenuItem>
+            <DropdownMenuItem>Team</DropdownMenuItem>
+            <DropdownMenuItem @click="authStore.logout">Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </Panel>
+
       <MiniMap />
     </VueFlow>
   </div>
 </template>
 <style scoped>
-@import 'https://cdn.jsdelivr.net/npm/@vue-flow/core@1.48.1/dist/style.css';
-@import 'https://cdn.jsdelivr.net/npm/@vue-flow/core@1.48.1/dist/theme-default.css';
-@import 'https://cdn.jsdelivr.net/npm/@vue-flow/controls@latest/dist/style.css';
-@import 'https://cdn.jsdelivr.net/npm/@vue-flow/minimap@latest/dist/style.css';
-@import 'https://cdn.jsdelivr.net/npm/@vue-flow/node-resizer@latest/dist/style.css';
-
-html,
-body,
-#app {
-  margin: 0;
-  height: 100%;
-}
-
-#app {
-  text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-.vue-flow__minimap {
-  transform: scale(75%);
-  transform-origin: bottom right;
-}
-
-.edgebutton {
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.edgebutton:hover {
-  transform: scale(1.1);
-  transition: all ease 0.5s;
-  box-shadow:
-    0 0 0 2px #10b98180,
-    0 0 0 4px #10b981;
-}
-
-.layout-reset-btn {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 60;
-  background: #111827;
-  color: #fff;
-  border: none;
-  padding: 10px 12px;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.2);
-  cursor: pointer;
-}
-.layout-reset-btn:hover {
-  transform: translateY(-2px);
-  transition: all 0.12s ease;
-}
-</style>
-<style>
-.vue-flow__node-toolbar {
+.basic-flow .vue-flow__controls {
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  background-color: #2d3748;
-  padding: 8px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.vue-flow__node-toolbar button {
-  background: #4a5568;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.vue-flow__node-toolbar button.selected {
-  background: #2563eb;
-}
-
-.vue-flow__node-toolbar button:hover {
-  background: #2563eb;
-}
-
-.vue-flow__node-menu {
-  padding: 16px 24px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-.vue-flow__node-menu.selected {
-  box-shadow: 0 0 0 2px #2563eb;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 </style>

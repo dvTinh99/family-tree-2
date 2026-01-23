@@ -5,6 +5,7 @@ import Login from '@/pages/Login.vue'
 import Sample from '@/pages/Sample.vue'
 import Demo from '@/pages/Demo.vue'
 import HandleLogin from '@/pages/handleLogin.vue'
+import { useAuthStore } from '@/store/auth'
 
 const routes = [
   {
@@ -42,6 +43,23 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// Navigation guard to check authentication
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  const isAuthenticated = authStore.state.isLoggedIn
+
+  // Allow access to login and handle-auth without authentication
+  if (to.name === 'handle-auth') {
+    next()
+  } else if (!isAuthenticated) {
+    // Redirect to login if not authenticated
+    authStore.logout()
+  } else {
+    // Proceed if authenticated
+    next()
+  }
 })
 
 export default router

@@ -12,121 +12,8 @@ export const useFamilyStore = defineStore(
   'family',
   () => {
     // state
-    const nodesOrigin = ref<Node[]>([
-      {
-        id: '1',
-        type: 'person',
-        label: 'GrandFather',
-        data: { name: 'GrandFather', avatar: 'images/grandfather.svg' },
-      },
-      {
-        id: '2',
-        type: 'person',
-        label: 'GrandMother',
-        data: { name: 'GrandMother', avatar: 'images/grandmother.svg' },
-      },
-      {
-        id: '1.1',
-        type: 'person',
-        label: 'GrandFather',
-        data: { name: 'GrandFather', avatar: 'images/ong_ngoai.svg' },
-      },
-      {
-        id: '2.1',
-        type: 'person',
-        label: 'GrandMother',
-        data: { name: 'GrandMother', avatar: 'images/ba_ngoai.svg' },
-      },
-      {
-        id: '3',
-        type: 'person',
-        label: 'Father',
-        data: { name: 'Father', avatar: 'images/father.svg' },
-      },
-      {
-        id: '4',
-        type: 'person',
-        label: 'Mother',
-        data: { name: 'Mother', avatar: 'images/mother.svg' },
-      },
-      {
-        id: '5',
-        type: 'person',
-        label: 'Me',
-        data: { name: 'Me', avatar: 'images/me.jpeg' },
-      },
-      {
-        id: '6',
-        type: 'person',
-        label: 'Sister',
-        data: { name: 'Sister', avatar: 'images/sister.svg' },
-      },
-    ])
-    const edgesOrigin = ref<Edge[]>([
-      {
-        id: 'e1',
-        source: '1',
-        target: '2',
-        type: 'step',
-        data: { relation: 'spouse' },
-        sourceHandle: 'right-source',
-        targetHandle: 'left-target',
-      },
-      {
-        id: 'e11',
-        source: '1.1',
-        target: '2.1',
-        type: 'step',
-        data: { relation: 'spouse' },
-        sourceHandle: 'right-source',
-        targetHandle: 'left-target',
-      },
-      {
-        id: 'e2',
-        source: '1',
-        target: '3',
-        type: 'step',
-        data: { relation: 'parent' },
-        sourceHandle: 'bottom-source',
-        targetHandle: 'top-target',
-      },
-      {
-        id: 'e3',
-        source: '1.1',
-        target: '4',
-        type: 'step',
-        data: { relation: 'parent' },
-        sourceHandle: 'bottom-source',
-        targetHandle: 'top-target',
-      },
-      {
-        id: 'e4',
-        source: '3',
-        target: '4',
-        type: 'step',
-        data: { relation: 'spouse' },
-        sourceHandle: 'right-source',
-        targetHandle: 'left-target',
-      },
-      {
-        id: 'e5',
-        source: '3',
-        target: '5',
-        type: 'step',
-        data: { relation: 'parent' },
-        sourceHandle: 'bottom-source',
-        targetHandle: 'top-target',
-      },
-      {
-        id: 'e6',
-        source: '3',
-        target: '6',
-        type: 'step',
-        data: { relation: 'parent' },
-        sourceHandle: 'bottom-source',
-        targetHandle: 'top-target',
-      },
-    ])
+    const nodesOrigin = ref<Node[]>([])
+    const edgesOrigin = ref<Edge[]>([])
     const nodeSelected = ref<Node | null>(null)
 
     const selectedNodeId = ref<string | null>(null)
@@ -151,6 +38,8 @@ export const useFamilyStore = defineStore(
     const edges = ref<Edge[]>(formatGraph.value.edges)
     const selectedNode = nodeSelected.value
     watch(nodeSelected, () => recountNodeAndEdges())
+    watch(nodesOrigin, () => recountNodeAndEdges())
+    watch(edgesOrigin, () => recountNodeAndEdges())
 
     function recountNodeAndEdges() {
       nodes.value = formatGraph.value.nodes
@@ -302,6 +191,13 @@ export const useFamilyStore = defineStore(
       return highlights
     }
 
+    function $reset() {
+      nodesOrigin.value = []
+      edgesOrigin.value = []
+      nodeSelected.value = null
+    }
+
+
     return {
       // state
       nodes,
@@ -321,6 +217,8 @@ export const useFamilyStore = defineStore(
       updateNodePosition,
       setNodeSelected,
       renderGraph,
+      recountNodeAndEdges,
+      $reset,
 
       addChild,
       addSpouse,

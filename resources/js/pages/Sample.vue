@@ -37,8 +37,8 @@ const nodes = ref<any[]>([
   {
     id: '1',
     type: 'person',
-    label: 'Parent A',
-    data: { name: 'Parent A' },
+    label: 'Parent A 11',
+    data: { name: 'Parent A 11' },
   },
   {
     id: '2',
