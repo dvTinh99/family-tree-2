@@ -4,7 +4,7 @@ import Home from '@/pages/Home.vue'
 import Login from '@/pages/Login.vue'
 import Sample from '@/pages/Sample.vue'
 import Demo from '@/pages/Demo.vue'
-import HandleLogin from '@/pages/handleLogin.vue'
+import HandleLogin from '@/pages/HandleLogin.vue'
 import { useAuthStore } from '@/store/auth'
 
 const routes = [

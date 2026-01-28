@@ -59,6 +59,17 @@ function emitToggleBranch() {
     <Handle type="source" :position="Position.Right" id="right-source" />
 
     <!-- ...existing markup (avatar, toolbar, text) ... -->
+    <!-- toolbar -->
+    <NodeToolbar :is-visible="data.toolbarVisible" :position="Position.Top">
+      <div>
+        <button :title="action.title" @click.stop="action.action" v-for="(action, key) in toolbarAction" :key="key">
+          {{ action.text }}
+        </button>
+
+        <!-- collapse/expand button -->
+        <button title="Toggle branch" @click.stop="emitToggleBranch" class="ml-2">🔀</button>
+      </div>
+    </NodeToolbar>
     <div
       :class="['person-node', { selected }]"
       :data-highlight="props?.data?._highlight ? 'true' : 'false'"
@@ -76,19 +87,6 @@ function emitToggleBranch() {
         border: 1px solid #e5e7eb;
       "
     >
-      <!-- toolbar -->
-
-      <NodeToolbar :is-visible="data.toolbarVisible" :position="Position.Top">
-        <div>
-          <button :title="action.title" @click.stop="action.action" v-for="action in toolbarAction">
-            {{ action.text }}
-          </button>
-
-          <!-- collapse/expand button -->
-          <button title="Toggle branch" @click.stop="emitToggleBranch" class="ml-2">🔀</button>
-        </div>
-      </NodeToolbar>
-
       <img
         v-if="avatar"
         :src="avatar"
@@ -96,10 +94,10 @@ function emitToggleBranch() {
         style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover"
       />
       <div v-else>
-        <personIcon class="w-[50px] h-[50px]" />
+        <personIcon style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover"/>
       </div>
 
-      <div style="text-align: left; flex: 1; line-height: 1">
+      <div class="flex justify-center">
         <div style="font-weight: 700; font-size: 14px; color: #111827">{{ props.label }}</div>
       </div>
     </div>
