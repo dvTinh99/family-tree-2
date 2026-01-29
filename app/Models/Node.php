@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Node extends Model
 {
+    protected $appends = ['type'];
     protected $fillable = [
         'family_id',
         'data',
@@ -15,8 +16,6 @@ class Node extends Model
         'birthday',
         'label',
     ];
-
-    protected $appends = ['type'];
 
     protected function type(): Attribute
     {

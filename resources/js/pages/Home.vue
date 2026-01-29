@@ -13,6 +13,7 @@ import AnimationEdge from '@/components/edges/AnimationEdge.vue'
 import Icon from '@/components/Icon.vue'
 import SearchPanel from '@/components/SearchPanel.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import '@vue-flow/controls/dist/style.css'
 
 import {
   DropdownMenu,
@@ -90,8 +91,8 @@ function updatePos() {
 /**
  * Resets the current viewport transformation (zoom & pan)
  */
-function resetTransform() {
-  setViewport({ x: 0, y: 0, zoom: 1 })
+function resetTransform(zoom = 1) {
+  setViewport({ x: 0, y: 0, zoom })
 }
 
 onBeforeMount(async () => {
@@ -101,6 +102,7 @@ onBeforeMount(async () => {
 onMounted(async () => {
   nextTick(() => {
     layoutGraph('TB')
+    resetTransform(1)
   })
 })
 </script>
@@ -114,9 +116,10 @@ onMounted(async () => {
       v-model:nodes="familyStore.nodes"
       v-model:edges="familyStore.edges"
       :default-edge-options="{ type: 'animation', animated: true }"
+      :default-node-options="{ type: 'person' }"
       @node-click="onNodeClick"
       class="basic-flow"
-      :default-viewport="{ zoom: 1.5 }"
+      :default-viewport="{ zoom: 0.5 }"
       :min-zoom="0.2"
       :max-zoom="4"
     >
@@ -143,13 +146,13 @@ onMounted(async () => {
       <Background />
 
       <Controls position="top-left">
-        <ControlButton title="Reset Transform" @click="resetTransform">
+        <!-- <ControlButton title="Reset Transform" @click="resetTransform">
           <Icon name="reset" />
-        </ControlButton>
+        </ControlButton> -->
 
-        <ControlButton title="Shuffle Node Positions" @click="updatePos">
+        <!-- <ControlButton title="Shuffle Node Positions" @click="updatePos">
           <Icon name="update" />
-        </ControlButton>
+        </ControlButton> -->
       </Controls>
       <Panel position="top-right" class="flex gap-1 items-center">
         <SearchPanel />

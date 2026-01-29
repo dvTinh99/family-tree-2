@@ -133,4 +133,45 @@ class AuthController extends Controller
             'refresh_token' => $refresh_token
         ];
     }
+
+    public function refresh(Request $request)
+    {
+        try {
+            $refreshToken = $request->input('refresh_token');
+            
+            if (!$refreshToken) {
+                return $this->responseError([], 'Refresh token is required');
+            }
+
+            // Set the token for JWTAuth
+            JWTAuth::setToken($refreshToken);
+            
+            // Get the payload
+            $payload = JWTAuth::getPayload();
+            
+            // Check if it's a refresh token
+            if (!$payload->get('is_refresh_token')) {
+                return $this->responseError([], 'Invalid refresh token');
+            }
+            
+            // Get the user
+            $user = JWTAuth::authenticate();
+            
+            if (!$user) {
+                return $this->responseError([], 'User not found');
+            }
+            
+            return $this->responseSuccess([
+                ...$this->getTokens($user),
+                'token_type' => 'bearer',
+            ], 'Token refreshed successfully');
+            
+        } catch (JWTException $e) {
+            Log::debug('JWTException in refresh', [$e->getMessage()]);
+            return $this->responseError([], 'Invalid refresh token');
+        } catch (Exception $e) {
+            Log::debug('JWTException in Exception', [$e->getMessage()]);
+            return $this->responseError([], 'Failed to refresh token');
+        }
+    }
 }

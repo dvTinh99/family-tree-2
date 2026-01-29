@@ -36,7 +36,7 @@ export const useAuthStore = defineStore(
       state.refresh_token = refresh_token
       state.isLoggedIn = true
 
-      localStorage.setItem('authToken', access_token)
+      localStorage.setItem('accessToken', access_token)
       localStorage.setItem('refreshToken', refresh_token)
     }
 
