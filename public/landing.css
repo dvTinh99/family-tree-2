@@ -59,3 +59,40 @@ body {
     transition: none !important;
   }
 }
+
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .45s ease, transform .45s ease;
+}
+
+/* show fallback if JS or GSAP sets .visible */
+.fade-in.visible,
+.fade-in[style*="opacity: 1"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* mobile tweaks */
+@media (max-width: 640px) {
+  .hero-visual {
+    padding: 0.5rem;
+    border-radius: 10px;
+  }
+
+  .feature-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .cta-primary {
+    font-size: 15px;
+    padding: 0.65rem 1rem;
+  }
+}
+
+/* mobile menu visual */
+#mobile-menu {
+  box-shadow: 0 8px 24px rgba(2,6,23,0.06);
+}

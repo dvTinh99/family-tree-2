@@ -39,27 +39,42 @@
                 </div>
                 <span class="font-semibold">Family Tree Builder</span>
             </a>
+
             <nav aria-label="Top" class="flex items-center gap-4">
-                <ul class="flex gap-4 items-center text-sm">
-                    <li><a href="#features"
-                            class="text-slate-700 hover:text-black">{{ __('messages.nav.features') }}</a></li>
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-700" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden>
+                        <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                <!-- Desktop nav -->
+                <ul class="hidden md:flex gap-4 items-center text-sm">
+                    <li><a href="#features" class="text-slate-700 hover:text-black">{{ __('messages.nav.features') }}</a></li>
                     <li><a href="#demo" class="text-slate-700 hover:text-black">{{ __('messages.nav.demo') }}</a></li>
-                    <li><a href="#trust" class="text-slate-700 hover:text-black">{{ __('messages.nav.trust') }}</a>
-                    </li>
-                    <li><a href="#contact"
-                            class="px-3 py-2 rounded-md border bg-white hover:bg-gray-100">{{ __('messages.nav.contact') }}</a>
-                    </li>
-                    <li><a href="/login"
-                            class="px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Login</a>
-                    </li>
+                    <li><a href="#trust" class="text-slate-700 hover:text-black">{{ __('messages.nav.trust') }}</a></li>
+                    <li><a href="#contact" class="px-3 py-2 rounded-md border bg-white hover:bg-gray-100">{{ __('messages.nav.contact') }}</a></li>
+                    <li><a href="/login" class="px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Login</a></li>
                 </ul>
+
                 <label for="langSelect" class="sr-only">Language</label>
-                <select id="langSelect" aria-label="Select language" class="ml-4 border rounded-md px-2 py-1 text-sm">
+                <select id="langSelect" aria-label="Select language" class="ml-4 border rounded-md px-2 py-1 text-sm hidden sm:inline">
                     <option value="en" {{ app()->getLocale() === 'en' ? 'selected' : '' }}>English</option>
                     <option value="vi" {{ app()->getLocale() === 'vi' ? 'selected' : '' }}>Tiếng Việt</option>
                     <option value="es" {{ app()->getLocale() === 'es' ? 'selected' : '' }}>Español</option>
                 </select>
             </nav>
+        </div>
+
+        <!-- Mobile menu panel -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur border-t">
+            <div class="px-4 py-3 space-y-2">
+                <a href="#features" class="block text-slate-700 py-2">Features</a>
+                <a href="#demo" class="block text-slate-700 py-2">Demo</a>
+                <a href="#trust" class="block text-slate-700 py-2">Trust</a>
+                <a href="#contact" class="block text-slate-700 py-2">Contact</a>
+                <a href="/login" class="block w-full text-center px-3 py-2 rounded-md bg-emerald-600 text-white">Login</a>
+            </div>
         </div>
     </header>
 
@@ -69,15 +84,15 @@
         <section class="max-w-6xl mx-auto px-4 py-16 grid gap-8 grid-cols-1 md:grid-cols-2 items-center">
             <div>
                 <p class="kicker">{{ __('messages.hero.kicker') }}</p>
-                <h1 class="mt-4 text-3xl md:text-5xl font-extrabold tracking-tight hero-title">
+                <h1 class="mt-4 text-2xl md:text-5xl font-extrabold tracking-tight hero-title">
                     {{ __('messages.hero.title') }}</h1>
                 <p class="mt-4 text-lg text-gray-600 max-w-xl hero-sub">{{ __('messages.hero.sub') }}</p>
 
-                <div class="mt-6 flex gap-4 items-center">
+                <div class="mt-6 flex flex-col sm:flex-row gap-3 items-center">
                     <a href="#demo"
-                        class="cta-primary px-5 py-3 rounded-md shadow hover:shadow-lg transition hero-cta">{{ __('messages.cta.primary') }}</a>
+                        class="cta-primary w-full sm:w-auto px-5 py-3 rounded-md shadow hover:shadow-lg transition hero-cta">{{ __('messages.cta.primary') }}</a>
                     <a href="#features"
-                        class="px-4 py-3 rounded-md border hover:bg-emerald-50">{{ __('messages.cta.secondary') }}</a>
+                        class="w-full sm:w-auto px-4 py-3 rounded-md border hover:bg-emerald-50 text-center">{{ __('messages.cta.secondary') }}</a>
                 </div>
 
                 <ul class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
@@ -88,10 +103,10 @@
                 </ul>
             </div>
 
-            <div class="hero-visual p-4 fade-in" aria-hidden="true">
+            <div class="hero-visual p-2 md:p-4 fade-in" aria-hidden="true">
                 <!-- Placeholder screenshot; replace with real screenshot or embed iframe / demo -->
                 <img src="/images/demo.webp" alt="Interactive family tree preview"
-                    class="w-full rounded-md shadow-sm" />
+                    class="w-full rounded-md shadow-sm h-56 md:h-auto object-cover" />
                 {{-- <figcaption class="mt-2 text-xs text-muted">Interactive editor preview (click Demo to open live)</figcaption> --}}
             </div>
         </section>
@@ -351,6 +366,26 @@
                 {{ __('messages.footer.desc') }}</p>
         </div>
     </footer>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('mobile-menu-button')
+        const menu = document.getElementById('mobile-menu')
+        if (btn && menu) {
+          btn.addEventListener('click', () => {
+            const present = menu.classList.toggle('hidden') // returns true if hidden after toggle
+            // aria-expanded should reflect whether menu is open
+            btn.setAttribute('aria-expanded', String(!present))
+          })
+        }
+
+        // quick reveal for .fade-in elements (helps mobile when GSAP hasn't run)
+        document.querySelectorAll('.fade-in').forEach((el) => {
+          el.style.transition = 'opacity .45s ease, transform .45s ease'
+          el.style.opacity = '1'
+          el.style.transform = 'none'
+        })
+      })
+    </script>
 
     <script src="landing.js"></script>
 </body>
