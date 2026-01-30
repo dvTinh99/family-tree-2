@@ -21,35 +21,48 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from '@/components/ui/input-group'
-import { Label } from '@/components/ui/label'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
-import { useForm } from 'vee-validate'
+import { useField, useForm } from 'vee-validate'
+import Input from './common/Input.vue'
+import Button from './ui/button/Button.vue'
+import DatePicker from './common/DatePicker.vue'
+import Select from './common/Select.vue'
 
 const open = defineModel<boolean>('open')
 interface LoginForm {
   relation: string
   name: string
-  birth: string
+  birth: Date
   avatar: string
   type: string
+  gender: number
 }
 
-const { errors, setErrors, setFieldValue, values } = useForm<LoginForm>({
+const { errors, setErrors, setFieldValue, values, handleSubmit } = useForm<LoginForm>({
   initialValues: {
     relation: '',
     name: '',
-    birth: '',
+    birth: new Date(),
     avatar: '',
     type: 'person',
+    gender: 1
   },
 })
 
+const name = useField<string>('name')
+const birth = useField<Date>('birth')
+const gender = useField<Date>('gender')
+
+
 const familyStore = useFamilyStore()
 
-function doConfirm() {
-  addNodeAndRelation(person.value.relationType)
-}
+const onSubmit = handleSubmit(async (values) => {
+  console.log('values', values);
+  
+})
+// function doConfirm() {
+//   addNodeAndRelation(person.value.relationType)
+// }
 
 function addNodeAndRelation(relation: string) {
   switch (relation) {
@@ -78,50 +91,12 @@ function doCancel() {
     <!-- <SheetTrigger>Open</SheetTrigger> -->
     <SheetContent>
       <SheetHeader>
-        <SheetTitle>Add relation?</SheetTitle>
+        <SheetTitle>Add relation !</SheetTitle>
       </SheetHeader>
       <div class="grid w-full max-w-sm gap-6 p-3">
-        <InputGroup>
-          <InputGroupInput id="email-2" placeholder="shadcn@vercel.com" />
-          <InputGroupAddon align="block-start">
-            <Label for="email-2" class="text-foreground"> Email </Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger as-child>
-                  <InputGroupButton
-                    variant="ghost"
-                    aria-label="Help"
-                    class="ml-auto rounded-full"
-                    size="icon-xs"
-                  >
-                    <InfoIcon />
-                  </InputGroupButton>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>We'll use this to send you notifications</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </InputGroupAddon>
-        </InputGroup>
-        <InputGroup>
-          <InputGroupAddon>
-            <InputGroupText>$</InputGroupText>
-          </InputGroupAddon>
-          <InputGroupInput placeholder="0.00" />
-          <InputGroupAddon align="inline-end">
-            <InputGroupText>USD</InputGroupText>
-          </InputGroupAddon>
-        </InputGroup>
-        <InputGroup>
-          <InputGroupAddon>
-            <InputGroupText>https://</InputGroupText>
-          </InputGroupAddon>
-          <InputGroupInput placeholder="example.com" class="!pl-0.5" />
-          <InputGroupAddon align="inline-end">
-            <InputGroupText>.com</InputGroupText>
-          </InputGroupAddon>
-        </InputGroup>
+        <Input label="Name" tooltip="We'll use this to send you notifications" placeholder="shadcn@vercel.com" v-model="name.value.value"/>
+        <DatePicker class="w-full" v-model="birth.value.value"/>
+        <Select class="w-full" v-model="gender.value.value"/>
         <InputGroup>
           <InputGroupInput placeholder="Enter your username" />
           <InputGroupAddon align="inline-end">
@@ -137,6 +112,12 @@ function doCancel() {
           </InputGroupAddon>
         </InputGroup>
       </div>
+      <SheetFooter>
+        <div class="flex gap-2 w-full">
+          <Button class="w-1/2" @click="onSubmit">Submit</Button>
+          <Button class="w-1/2" variant="outline" @click="() => open = false">Cancel</Button>
+        </div>
+      </SheetFooter>
     </SheetContent>
   </Sheet>
 </template>
