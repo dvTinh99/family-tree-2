@@ -45,13 +45,18 @@ const router = createRouter({
   routes,
 })
 
+const unAuthRoutes = [
+  'handle-auth',
+  'demo'
+]
+
 // Navigation guard to check authentication
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isAuthenticated = authStore.state.isLoggedIn
 
   // Allow access to login and handle-auth without authentication
-  if (to.name === 'handle-auth') {
+  if (unAuthRoutes.includes(to.name as string)) {
     next()
   } else if (!isAuthenticated) {
     // Redirect to login if not authenticated

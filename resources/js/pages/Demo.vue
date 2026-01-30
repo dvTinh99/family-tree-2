@@ -14,6 +14,7 @@ import Icon from '@/components/Icon.vue'
 import SearchPanel from '@/components/SearchPanel.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { nodesInit, edgesInit } from './initial-elements'
+import domtoimage from 'dom-to-image-more';
 
 import {
   DropdownMenu,
@@ -31,7 +32,7 @@ const isLoading = ref(false)
 const familyStore = useFamilyStore()
 const authStore = useAuthStore()
 
-const { fitView, nodesDraggable, setViewport, setNodesSelection } = useVueFlow()
+const { fitView, nodesDraggable, setViewport, setNodesSelection, vueFlowRef } = useVueFlow()
 async function layoutGraph(direction: string = 'TB') {
   console.log('demo me')
   familyStore.nodesOrigin = nodesInit
@@ -106,6 +107,38 @@ onMounted(() =>
     layoutGraph('TB')
   })
 )
+
+const exportBlob = async () => {
+  const el = document.getElementsByClassName('vue-flow basic-flow')[0];
+  if (!el) return;
+
+  try {
+    // tạo blob từ DOM node
+    const blob = await domtoimage.toBlob(el, {
+      bgcolor: "#fff",  // màu nền trắng
+      cacheBust: true,   // tránh cache
+    });
+
+    // tạo link tạm để tải
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "export.png"; // tên file
+    link.click();
+
+    // (tùy chọn) giải phóng URL blob
+    URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error("Export failed:", err);
+  }
+};
+
+
+const screenShot = async () => {
+  console.log('screenshot ne', vueFlowRef.value);
+  const canvas = await exportBlob();
+}
 </script>
 
 <template>
@@ -164,11 +197,11 @@ onMounted(() =>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <!-- <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>Team</DropdownMenuItem>
+            <DropdownMenuItem>Billing</DropdownMenuItem> -->
+            <DropdownMenuItem @click="screenShot">Screenshot</DropdownMenuItem>
             <DropdownMenuItem @click="authStore.logout">Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
