@@ -24,7 +24,7 @@ let isRefreshing = false
 let failedQueue = [] as any[]
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
+  failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error)
     } else {
@@ -33,7 +33,6 @@ const processQueue = (error, token = null) => {
   })
   failedQueue = []
 }
-
 
 apiClient.interceptors.response.use(
   (response) => response,
@@ -47,7 +46,6 @@ apiClient.interceptors.response.use(
 
     // chỉ handle 401, và tránh retry vô hạn
     if (error.response.status === 401 && !originalRequest._retry) {
-
       // nếu đang refresh → chờ
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -56,7 +54,7 @@ apiClient.interceptors.response.use(
               originalRequest.headers.Authorization = `Bearer ${token}`
               resolve(apiClient(originalRequest))
             },
-            reject
+            reject,
           })
         })
       }
@@ -67,11 +65,11 @@ apiClient.interceptors.response.use(
       try {
         const refreshResponse = await axios.post(
           '/api/auth/refresh',
-          {refresh_token: localStorage.getItem('refreshToken')},
+          { refresh_token: localStorage.getItem('refreshToken') },
           { withCredentials: true } // nếu refresh dùng cookie
         )
-        console.log('refreshResponse', refreshResponse);
-        
+        console.log('refreshResponse', refreshResponse)
+
         const newToken = refreshResponse.data.data.access_token
         localStorage.setItem('accessToken', newToken)
 
@@ -80,7 +78,6 @@ apiClient.interceptors.response.use(
         processQueue(null, newToken)
 
         return apiClient(originalRequest)
-
       } catch (refreshError) {
         processQueue(refreshError, null)
 
@@ -97,6 +94,5 @@ apiClient.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-
 
 export default apiClient

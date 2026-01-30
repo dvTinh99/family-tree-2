@@ -45,10 +45,7 @@ const router = createRouter({
   routes,
 })
 
-const unAuthRoutes = [
-  'handle-auth',
-  'demo'
-]
+const unAuthRoutes = ['handle-auth', 'demo']
 
 // Navigation guard to check authentication
 router.beforeEach((to, from, next) => {

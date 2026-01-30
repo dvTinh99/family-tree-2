@@ -1,15 +1,50 @@
 <script setup lang="ts">
 import { useFamilyStore } from '@/store/family'
 import { ref, watch, toRefs } from 'vue'
-const emit = defineEmits(['confirm', 'cancel'])
+import { InfoIcon } from 'lucide-vue-next'
 
-const person = ref({
-  relationType: '',
-  name: '',
-  birth: '',
-  avatar: '',
-  type: 'person',
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from '@/components/ui/input-group'
+import { Label } from '@/components/ui/label'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+
+import { useForm } from 'vee-validate'
+
+const open = defineModel<boolean>('open')
+interface LoginForm {
+  relation: string
+  name: string
+  birth: string
+  avatar: string
+  type: string
+}
+
+const { errors, setErrors, setFieldValue, values } = useForm<LoginForm>({
+  initialValues: {
+    relation: '',
+    name: '',
+    birth: '',
+    avatar: '',
+    type: 'person',
+  },
 })
+
 const familyStore = useFamilyStore()
 
 function doConfirm() {
@@ -39,57 +74,69 @@ function doCancel() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-40 flex">
-    <!-- sidebar panel -->
-    <aside class="w-80 h-full bg-white rounded-l-lg shadow-lg p-4 overflow-auto">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold">
-          Add {{ person?.relationType ? person.relationType : 'Person' }}
-        </h3>
-        <button @click="doCancel" class="text-gray-500 hover:text-gray-700">✕</button>
+  <Sheet :open="open" @update:open="open = $event">
+    <!-- <SheetTrigger>Open</SheetTrigger> -->
+    <SheetContent>
+      <SheetHeader>
+        <SheetTitle>Add relation?</SheetTitle>
+      </SheetHeader>
+      <div class="grid w-full max-w-sm gap-6 p-3">
+        <InputGroup>
+          <InputGroupInput id="email-2" placeholder="shadcn@vercel.com" />
+          <InputGroupAddon align="block-start">
+            <Label for="email-2" class="text-foreground"> Email </Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <InputGroupButton
+                    variant="ghost"
+                    aria-label="Help"
+                    class="ml-auto rounded-full"
+                    size="icon-xs"
+                  >
+                    <InfoIcon />
+                  </InputGroupButton>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>We'll use this to send you notifications</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </InputGroupAddon>
+        </InputGroup>
+        <InputGroup>
+          <InputGroupAddon>
+            <InputGroupText>$</InputGroupText>
+          </InputGroupAddon>
+          <InputGroupInput placeholder="0.00" />
+          <InputGroupAddon align="inline-end">
+            <InputGroupText>USD</InputGroupText>
+          </InputGroupAddon>
+        </InputGroup>
+        <InputGroup>
+          <InputGroupAddon>
+            <InputGroupText>https://</InputGroupText>
+          </InputGroupAddon>
+          <InputGroupInput placeholder="example.com" class="!pl-0.5" />
+          <InputGroupAddon align="inline-end">
+            <InputGroupText>.com</InputGroupText>
+          </InputGroupAddon>
+        </InputGroup>
+        <InputGroup>
+          <InputGroupInput placeholder="Enter your username" />
+          <InputGroupAddon align="inline-end">
+            <InputGroupText>@company.com</InputGroupText>
+          </InputGroupAddon>
+        </InputGroup>
+        <InputGroup>
+          <InputGroupTextarea placeholder="Enter your message" />
+          <InputGroupAddon align="block-end">
+            <InputGroupText class="text-xs text-muted-foreground">
+              120 characters left
+            </InputGroupText>
+          </InputGroupAddon>
+        </InputGroup>
       </div>
-
-      <label class="block text-xs text-gray-600">Relation</label>
-      <select v-model="person.relationType" class="w-full px-2 py-2 border rounded-md mb-2 text-sm">
-        <option value="">Select relation</option>
-        <option value="father">Father</option>
-        <option value="mother">Mother</option>
-        <option value="child">Child</option>
-        <option value="spouse">Spouse</option>
-        <option value="sibling">Sibling</option>
-      </select>
-
-      <label class="block text-xs text-gray-600">Name</label>
-      <input
-        v-model="person.name"
-        class="w-full px-2 py-2 border rounded-md mb-2 text-sm"
-        type="text"
-      />
-
-      <label class="block text-xs text-gray-600">Birth</label>
-      <input
-        v-model="person.birth"
-        class="w-full px-2 py-2 border rounded-md mb-2 text-sm"
-        type="date"
-      />
-
-      <label class="block text-xs text-gray-600">Avatar URL</label>
-      <input
-        v-model="person.avatar"
-        class="w-full px-2 py-2 border rounded-md mb-3 text-sm"
-        type="text"
-      />
-
-      <div class="flex justify-end gap-2 mt-4">
-        <button @click="doCancel" class="px-3 py-1 text-sm rounded-md border">Cancel</button>
-        <button @click="doConfirm" class="px-3 py-1 text-sm rounded-md bg-sky-600 text-white">
-          Add
-        </button>
-      </div>
-    </aside>
-  </div>
+    </SheetContent>
+  </Sheet>
 </template>
-
-<style scoped>
-/* no additional styles; using Tailwind classes */
-</style>

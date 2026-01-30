@@ -193,7 +193,6 @@ export const useFamilyStore = defineStore(
       nodeSelected.value = null
     }
 
-
     return {
       // state
       nodes,

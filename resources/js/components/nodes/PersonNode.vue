@@ -60,9 +60,14 @@ function emitToggleBranch() {
 
     <!-- ...existing markup (avatar, toolbar, text) ... -->
     <!-- toolbar -->
-    <NodeToolbar :is-visible="data.toolbarVisible" :position="Position.Top">
+    <NodeToolbar :is-visible="true" :position="Position.Top">
       <div>
-        <button :title="action.title" @click.stop="action.action" v-for="(action, key) in toolbarAction" :key="key">
+        <button
+          :title="action.title"
+          @click.stop="action.action"
+          v-for="(action, key) in toolbarAction"
+          :key="key"
+        >
           {{ action.text }}
         </button>
 
@@ -94,7 +99,7 @@ function emitToggleBranch() {
         style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover"
       />
       <div v-else>
-        <personIcon style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover"/>
+        <personIcon style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover" />
       </div>
 
       <div class="flex justify-center">

@@ -108,7 +108,6 @@ export function addSpouseAndRerouteParents(
   nodes: Node[],
   edges: Edge[]
 ): { nodes: Node[]; edges: Edge[] } {
-
   if (Array.isArray(nodes) == false || Array.isArray(edges) == false) {
     return { nodes: [], edges: [] }
   }

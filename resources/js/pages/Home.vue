@@ -40,13 +40,7 @@ async function layoutGraph(direction: string = 'TB') {
   })
   isLoading.value = false
 }
-const relationForm = reactive({
-  sourceId: '',
-  relationType: '',
-  name: '',
-  birth: '',
-  avatar: '',
-})
+
 const selectedPerson = ref(null)
 function handleCloseModal() {
   showPersonModal.value = false
@@ -54,11 +48,6 @@ function handleCloseModal() {
 }
 
 function onAddRelationIntent({ sourceId, relationType }) {
-  relationForm.sourceId = sourceId
-  relationForm.relationType = relationType
-  relationForm.name = '' // optional default
-  relationForm.birth = ''
-  relationForm.avatar = `https://i.pravatar.cc/80?u=${Date.now()}`
   showPersonModal.value = true
 }
 
@@ -109,9 +98,7 @@ onMounted(async () => {
 
 <template>
   <div class="h-screen w-screen" v-if="!isLoading">
-    <div v-if="showPersonModal">
-      <PersonModal v-model="relationForm" @cancel="() => (showPersonModal = false)" />
-    </div>
+    <PersonModal v-model:open="showPersonModal" />
     <VueFlow
       v-model:nodes="familyStore.nodes"
       v-model:edges="familyStore.edges"
