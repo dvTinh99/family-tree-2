@@ -5,8 +5,6 @@ export function useFamilyTreeLayout() {
   const { findNode } = useVueFlow()
 
   function buildGraph(persons, relations) {
-    console.log('persons', persons, 'relations', relations)
-
     const dagreGraph = new dagre.graphlib.Graph()
     dagreGraph.setDefaultEdgeLabel(() => ({}))
 

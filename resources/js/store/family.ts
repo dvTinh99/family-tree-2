@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch, watchEffect } from 'vue'
-import type { Node, Edge } from '@vue-flow/core'
+import { type Node, type Edge, useVueFlow } from '@vue-flow/core'
 import { useApi } from '@/composables/useApi'
 import {
   familyTreeLayout,
   addSpouseAndRerouteParents,
   applyRelationHandles,
 } from '@/utils/familyTreeLayout'
-
+const { fitView, nodesDraggable, setViewport, setNodesSelection  } = useVueFlow()
 export const useFamilyStore = defineStore(
   'family',
   () => {
@@ -47,8 +47,6 @@ export const useFamilyStore = defineStore(
         '/api/family-tree'
       )
 
-      console.log('data.value', data.value);
-      
       nodesOrigin.value = data.value?.nodes as Node[]
       edgesOrigin.value = data.value?.edges as Edge[]
       recountNodeAndEdges()
@@ -62,51 +60,6 @@ export const useFamilyStore = defineStore(
       const nodeFormat = familyTreeLayout(nodeResult, edgeResult)
 
       return { nodes: nodeFormat, edges: edgeResult }
-    }
-
-    async function addNode(node: Node) {
-      nodesOrigin.value.push(node)
-    }
-
-    async function addEdge(edge: Edge) {
-      edgesOrigin.value.push(edge)
-    }
-
-    // add person by relation
-    async function addChild(person: any) {
-      const idNode = `person-${Date.now()}`
-      await addNode({
-        ...person,
-        id: idNode,
-        type: 'person',
-      })
-      await addEdge({
-        id: `edge-${Date.now()}`,
-        source: nodeSelected?.value?.id || '1',
-        target: idNode,
-        type: 'step',
-        data: { relation: 'parent' },
-      })
-      recountNodeAndEdges()
-    }
-
-    function addSpouse(person: any) {
-      console.log('vao addSpouse');
-      const idNode = `person-${Date.now()}`
-      addNode({
-        ...person,
-        id: idNode,
-        type: 'person',
-      })
-      addEdge({
-        id: `edge-${Date.now()}`,
-        source: nodeSelected?.value?.id || '1',
-        target: idNode,
-        type: 'step',
-        data: { relation: 'spouse' },
-      })
-
-      recountNodeAndEdges()
     }
 
     function updateNodePosition(id: string, x: number, y: number) {
@@ -207,16 +160,11 @@ export const useFamilyStore = defineStore(
       selectedNode,
       // actions
       initStore,
-      addNode,
-      addEdge,
       updateNodePosition,
       setNodeSelected,
       renderGraph,
       recountNodeAndEdges,
       $reset,
-
-      addChild,
-      addSpouse,
     }
   },
   {

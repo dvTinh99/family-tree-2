@@ -17,8 +17,6 @@ export async function useApi<T = any>(
 
   isLoading.value = true
 
-  console.log('vao day ne')
-
   try {
     const config: AxiosRequestConfig = {
       url,

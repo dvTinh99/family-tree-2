@@ -22,8 +22,6 @@ export const useAuthStore = defineStore(
     })
 
     async function init(accessToken: string, refreshToken: string) {
-      console.log('vao init')
-
       login(accessToken, refreshToken)
       // fetch family
       // const familyStore = useFamilyStore()

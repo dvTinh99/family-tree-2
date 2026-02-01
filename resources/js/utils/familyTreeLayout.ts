@@ -19,7 +19,7 @@ export function familyTreeLayout(
 
   g.setGraph({
     rankdir: direction,
-    ranksep: 50, // vertical spacing between generations
+    ranksep: 100, // vertical spacing between generations
     nodesep: 100, // horizontal spacing between nodes
   })
 
@@ -77,6 +77,9 @@ export function familyTreeLayout(
       },
     }
   })
+
+  console.log('layouted', layouted);
+  
 
   return layouted
 }
@@ -191,7 +194,11 @@ export function addSpouseAndRerouteParents(
         })
       } else {
         // no spouse, keep parent as source
-        newEdges.push(e)
+        newEdges.push({
+          ...e,
+          sourceHandle: 'bottom-source',
+          targetHandle: 'top-target',
+        })
       }
     } else {
       // keep other edge types as is

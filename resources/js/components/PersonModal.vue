@@ -29,6 +29,8 @@ import DatePicker from './common/DatePicker.vue'
 import Select from './common/Select.vue'
 import Label from './ui/label/Label.vue'
 import TextArea from './common/TextArea.vue'
+import { useVueFlow } from '@vue-flow/core'
+import { familyTreeLayout, addSpouseAndRerouteParents, applyRelationHandles } from '@/utils/familyTreeLayout'
 
 const open = defineModel<boolean>('open')
 const emit = defineEmits(['cancel', 'added', 'update:open'])
@@ -41,8 +43,9 @@ interface AddNodeForm {
   type: string
   gender: number
   biography: string | undefined | null
-}
 
+}
+const { fitView, nodesDraggable, setViewport, addNodes, addEdges, toObject, fromObject } = useVueFlow()
 const { errors, setErrors, setFieldValue, values, handleSubmit } = useForm<AddNodeForm>({
   initialValues: {
     relation: 1,
@@ -89,44 +92,102 @@ const relationOptions = [
 const familyStore = useFamilyStore()
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log('vao day ne', values.relation);
-  
-  // call appropriate store action
-  if (values.relation === 2) {
-    console.log('vao if');
-    
-    familyStore.addSpouse(values)
-  } else {
-    console.log('vao else');
-    
-    await familyStore.addChild(values)
+  // generate id for new node
+  const idNode = `person-${Date.now()}`
+
+  // determine position: place below selected node if available
+  const selected = familyStore.nodeSelected
+  const pos = selected?.position ? { x: selected.position.x, y: (selected.position.y ?? 0) + 120 } : { x: 50, y: 150 }
+
+  // create node object (keeps the form values as top-level props to match store usage)
+  const newNode = {
+    ...values,
+    id: idNode,
+    type: 'person',
+    position: pos,
+    label: values.name
   }
 
-  // // close and notify parent
-  // emit('update:open', false)
-  // emit('added', values)
+  // add to the vue-flow graph
+  try {
+    addNodes(newNode)
+    // add connecting edge
+    const edge = {
+      id: `edge-${Date.now()}`,
+      source: selected?.id || '1',
+      target: idNode,
+      type: 'step',
+      sourceHandle: 'bottom-source',
+      targetHandle: 'top-target',
+      data: { relation: values.relation === 2 ? 'spouse' : 'parent' },
+    }
+    addEdges(edge)
 
-  // // reset form
-  // setFieldValue('relation', 1)
-  // setFieldValue('name', '')
-  // setFieldValue('birth', new Date())
-  // setFieldValue('avatar', '')
-  // setFieldValue('gender', 1)
-  // // clear file and preview
-  // avatarFile.value = null
-  // avatarPreview.value = ''
+    // keep store origin arrays in sync (so formatGraph / persistence works)
+    if ((familyStore as any).nodesOrigin && (familyStore as any).edgesOrigin) {
+      ;(familyStore as any).nodesOrigin.push(newNode)
+      ;(familyStore as any).edgesOrigin.push(edge)
+    }
+
+    // recompute layout using familyTreeLayout + addSpouseAndRerouteParents
+    // get current vue-flow data
+    const current = toObject()
+    const { nodes: nodeResult, edges: edgeResult } = addSpouseAndRerouteParents(
+      current.nodes as any,
+      current.edges as any
+    )
+    const positionedNodes = familyTreeLayout(nodeResult as any, edgeResult as any)
+    const handledEdges = applyRelationHandles(edgeResult as any)
+
+    console.log('positionedNodes', positionedNodes);
+    console.log('handledEdges', handledEdges);
+    
+
+    // push new layout to vue-flow
+    fromObject({ nodes: positionedNodes as any, edges: handledEdges as any })
+
+    // try to set node selection via vue-flow store (use any to avoid typing issues)
+    // try {
+    //   ;(useVueFlow() as any).setNodesSelection([idNode])
+    // } catch (err) {
+    //   try {
+    //     ;(useVueFlow() as any).setNodesSelection(idNode)
+    //   } catch (e) {
+    //     // ignore if not available
+    //   }
+    // }
+
+    // fit the view to show the new node
+    // fitView()
+  } catch (err) {
+    console.error('Failed to add node/edge or rerender layout', err)
+  }
+
+  // reset form
+  setFieldValue('relation', 1)
+  setFieldValue('name', '')
+  setFieldValue('birth', new Date())
+  setFieldValue('avatar', '')
+  setFieldValue('gender', 1)
+  setFieldValue('biography', null)
+  avatarFile.value = null
+  avatarPreview.value = ''
+
+  // close and notify parent
+  emit('update:open', false)
+  emit('added', values)
 })
 
 function addNodeAndRelation(relation: string) {
   switch (relation) {
     case 'child':
-      familyStore.addChild(values as any)
+      (familyStore as any).addChild(values as any)
       break
     case 'spouse':
-      familyStore.addSpouse(values as any)
+      (familyStore as any).addSpouse(values as any)
       break
     default:
-      familyStore.addChild(values as any)
+      (familyStore as any).addChild(values as any)
       break
   }
 }

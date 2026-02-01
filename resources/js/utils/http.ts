@@ -68,8 +68,6 @@ apiClient.interceptors.response.use(
           { refresh_token: localStorage.getItem('refreshToken') },
           { withCredentials: true } // nếu refresh dùng cookie
         )
-        console.log('refreshResponse', refreshResponse)
-
         const newToken = refreshResponse.data.data.access_token
         localStorage.setItem('accessToken', newToken)
 

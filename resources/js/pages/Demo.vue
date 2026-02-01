@@ -34,7 +34,6 @@ const authStore = useAuthStore()
 
 const { fitView, nodesDraggable, setViewport, setNodesSelection, vueFlowRef } = useVueFlow()
 async function layoutGraph(direction: string = 'TB') {
-  console.log('demo me')
   familyStore.nodesOrigin = nodesInit
   familyStore.edgesOrigin = edgesInit
 
@@ -134,7 +133,6 @@ const exportBlob = async () => {
 }
 
 const screenShot = async () => {
-  console.log('screenshot ne', vueFlowRef.value)
   const canvas = await exportBlob()
 }
 </script>

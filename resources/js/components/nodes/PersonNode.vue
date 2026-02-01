@@ -16,20 +16,16 @@ const emit = defineEmits(['add-relation', 'toggle-branch'])
 const { updateNodeData } = useVueFlow()
 
 function emitAddRelation(type: string) {
-
-    console.log('emitAddRelation');
-    
   emit('add-relation', { sourceId: props.id, relationType: type })
 }
 
 function handleButtonAction(action, click: any) {
-    console.log(typeof click);
     
     updateNodeData(props.id, { action })
     click()
 }
 
-const name = computed(() => props?.data.name || props.data.label || props.node.label || 'Unknown')
+const name = computed(() => props?.data.name || props.data.label || props.node.label || props.node.name || 'Unknown')
 </script>
 
 <template>
