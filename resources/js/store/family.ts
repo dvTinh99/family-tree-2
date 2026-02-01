@@ -36,14 +36,6 @@ export const useFamilyStore = defineStore(
     const edges = ref<Edge[]>(formatGraph.value.edges)
     const selectedNode = nodeSelected.value
 
-    watchEffect(() => {
-      onChange(nodeSelected, nodesOrigin, edgesOrigin)
-    })
-
-    function onChange(...params: any[]) {
-      recountNodeAndEdges()
-    }
-
     function recountNodeAndEdges() {
       nodes.value = formatGraph.value.nodes
       edges.value = formatGraph.value.edges
@@ -54,8 +46,12 @@ export const useFamilyStore = defineStore(
       const { data, error, isLoading } = await useApi<{ nodes: Node[]; edges: Edge[] }>(
         '/api/family-tree'
       )
+
+      console.log('data.value', data.value);
+      
       nodesOrigin.value = data.value?.nodes as Node[]
       edgesOrigin.value = data.value?.edges as Edge[]
+      recountNodeAndEdges()
     }
 
     function renderGraph(nodesParam?: Node[], edgesParam?: Edge[]) {
@@ -68,32 +64,34 @@ export const useFamilyStore = defineStore(
       return { nodes: nodeFormat, edges: edgeResult }
     }
 
-    function addNode(node: Node) {
+    async function addNode(node: Node) {
       nodesOrigin.value.push(node)
     }
 
-    function addEdge(edge: Edge) {
+    async function addEdge(edge: Edge) {
       edgesOrigin.value.push(edge)
     }
 
     // add person by relation
-    function addChild(person: any) {
+    async function addChild(person: any) {
       const idNode = `person-${Date.now()}`
-      addNode({
+      await addNode({
         ...person,
         id: idNode,
         type: 'person',
       })
-      addEdge({
+      await addEdge({
         id: `edge-${Date.now()}`,
         source: nodeSelected?.value?.id || '1',
         target: idNode,
         type: 'step',
         data: { relation: 'parent' },
       })
+      recountNodeAndEdges()
     }
 
     function addSpouse(person: any) {
+      console.log('vao addSpouse');
       const idNode = `person-${Date.now()}`
       addNode({
         ...person,
@@ -107,6 +105,8 @@ export const useFamilyStore = defineStore(
         type: 'step',
         data: { relation: 'spouse' },
       })
+
+      recountNodeAndEdges()
     }
 
     function updateNodePosition(id: string, x: number, y: number) {

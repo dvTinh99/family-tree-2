@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { h, onMounted, ref, nextTick, reactive, computed, onBeforeMount } from 'vue'
+import { h, onMounted, ref, nextTick, reactive, computed, onBeforeMount, watch, watchEffect } from 'vue'
 import { Background } from '@vue-flow/background'
-import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
+import { MarkerType, Panel, Position, useVueFlow, VueFlow } from '@vue-flow/core'
 import type { Edge, Node } from '@vue-flow/core'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import PersonNode from '@/components/nodes/PersonNode.vue'
@@ -14,6 +14,7 @@ import Icon from '@/components/Icon.vue'
 import SearchPanel from '@/components/SearchPanel.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import '@vue-flow/controls/dist/style.css'
+import ToolbarNode from '@/components/nodes/ToolbarNode.vue'
 
 import {
   DropdownMenu,
@@ -27,9 +28,18 @@ import { useAuthStore } from '@/store/auth'
 import { MiniMap } from '@vue-flow/minimap'
 
 const isLoading = ref(false)
-
+const localNodes = ref([
+  // {
+  //   id: '1',
+  //   type: 'menu',
+  //   data: { label: 'toolbar top', toolbarPosition: Position.Top },
+  //   position: { x: 200, y: 0 },
+  // },
+])
 const familyStore = useFamilyStore()
 const authStore = useAuthStore()
+
+const nodeStore = computed(() => familyStore.nodesOrigin)
 
 const { fitView, nodesDraggable, setViewport, setNodesSelection } = useVueFlow()
 async function layoutGraph(direction: string = 'TB') {
@@ -48,6 +58,8 @@ function handleCloseModal() {
 }
 
 function onAddRelationIntent({ sourceId, relationType }) {
+  console.log('emit ra home');
+  
   showPersonModal.value = true
 }
 
@@ -81,7 +93,10 @@ function updatePos() {
  * Resets the current viewport transformation (zoom & pan)
  */
 function resetTransform(zoom = 1) {
-  setViewport({ x: 0, y: 0, zoom })
+  const viewHeight = window.innerHeight
+  const viewWidth = window.innerWidth
+
+  setViewport({ x: (viewWidth/2.5), y: (viewHeight/2), zoom })
 }
 
 onBeforeMount(async () => {
@@ -90,10 +105,24 @@ onBeforeMount(async () => {
 
 onMounted(async () => {
   nextTick(() => {
-    layoutGraph('TB')
+    // layoutGraph('TB')
+    // localNodes.value = familyStore.nodes as any
     resetTransform(1)
   })
 })
+
+// watch(nodeStore.value, (newVal, oldVal) => {
+//   console.log('newVal', newVal);
+//   console.log('oldVal', oldVal);
+  
+//   localNodes.value = newVal as any
+// })
+const updateNodeLocal = () => {
+  // console.log('nodeStore', nodeStore.value);
+  localNodes.value = familyStore.nodes as any
+  
+}
+watchEffect(updateNodeLocal)
 </script>
 
 <template>
@@ -110,8 +139,11 @@ onMounted(async () => {
       :min-zoom="0.2"
       :max-zoom="4"
     >
-      <template #node-person="personNodeProps">
-        <PersonNode v-bind="personNodeProps" @add-relation="onAddRelationIntent" />
+      <template #node-person="props">
+        <PersonNode :id="props.id" :data="props.data" :node="props" @add-relation="onAddRelationIntent" />
+      </template>
+      <template #node-menu="props">
+        <ToolbarNode :id="props.id" :data="props.data" :node="props" @add-relation="onAddRelationIntent"/>
       </template>
       <template #node-spouse>
         <SpouseNode />

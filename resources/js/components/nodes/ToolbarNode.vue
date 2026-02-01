@@ -59,8 +59,8 @@ const name = computed(() => props?.data.name || props.data.label || props.node.l
   <div :class="['person-node', { selected }]"
       class="relative w-[180px] h-[90px] flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-sm">
     <img
-        v-if="props?.node?.avatar"
-        :src="props?.node?.avatar"
+        v-if="props.node.avatar"
+        :src="props.node.avatar"
         alt="avatar"
         style="width: 56px; height: 56px; border-radius: 999px; object-fit: cover"
       />

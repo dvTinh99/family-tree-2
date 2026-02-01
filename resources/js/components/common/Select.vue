@@ -6,6 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import Label from '@/components/ui/label/Label.vue'
+
 import { useAttrs } from 'vue'
 
 type TOption = {
@@ -14,6 +16,7 @@ type TOption = {
 }
 
 interface Props {
+    label?: string
     options?: TOption[]
     placeholder?: string
 }
@@ -38,14 +41,17 @@ const attrs = useAttrs()
 </script>
 
 <template>
-  <Select v-model="value">
-    <SelectTrigger v-bind="attrs">
-      <SelectValue v-if="placeholder" :placeholder="placeholder" />
-    </SelectTrigger>
-    <SelectContent>
-      <SelectItem :value="option.value" v-for="(option, index) in options" :key="index">
-        {{ option.name }}
-      </SelectItem>
-    </SelectContent>
-  </Select>
+  <div>
+    <Label v-if="label">{{ label }}</Label>
+    <Select v-model="value">
+      <SelectTrigger v-bind="attrs">
+        <SelectValue v-if="placeholder" :placeholder="placeholder" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem :value="option.value" v-for="(option, index) in options" :key="index">
+          {{ option.name }}
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
 </template>
