@@ -1,15 +1,19 @@
-version: '3'
 services:
   php:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./:/var/www/html
+      # Mount source code
+      - ./:/app
+      # Exclude node_modules và vendor
+      - /app/node_modules
+      - /app/vendor
+      - /app/.git
     ports:
       - 80:80
-    depends_on:
-      - mysql
+    # depends_on:
+    #   - mysql
     networks:
       - family-tree
   mysql:

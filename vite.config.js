@@ -23,6 +23,18 @@ export default defineConfig({
     watch: {
       ignored: ['**/storage/framework/views/**'],
     },
+    host: '0.0.0.0',
+    port: 5174,
+    strictPort: true,
+    origin: 'http://app.family.test:5174',
+    hmr: {
+      host: 'app.family.test',
+    },
+    cors: {
+      origin: '*',
+      credentials: true,
+    },
+
   },
   resolve: {
     alias: {
