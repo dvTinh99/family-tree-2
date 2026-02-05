@@ -5,6 +5,7 @@ import Login from '@/pages/Login.vue'
 import Sample from '@/pages/Sample.vue'
 import Demo from '@/pages/Demo.vue'
 import HandleLogin from '@/pages/HandleLogin.vue'
+import OpenCodeFamily from '@/pages/OpenCodeFamily.vue'
 import { useAuthStore } from '@/store/auth'
 
 const routes = [
@@ -12,6 +13,11 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home,
+  },
+  {
+    path: '/opencode',
+    name: 'opencode',
+    component: OpenCodeFamily,
   },
   {
     path: '/handle-auth',
