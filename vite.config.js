@@ -20,20 +20,31 @@ export default defineConfig({
     svgLoader(),
   ],
   server: {
-    watch: {
-      ignored: ['**/storage/framework/views/**'],
-    },
     host: '0.0.0.0',
     port: 5174,
     strictPort: true,
-    origin: 'http://app.family.test:5174',
-    hmr: {
-      host: 'app.family.test',
+    watch: {
+      ignored: ['**/storage/framework/views/**'],
     },
     cors: {
-      origin: '*',
-      credentials: true,
+        origin: true,      // dynamically allow any origin
+        credentials: true, // support cookies/sessions
     },
+    hmr: {
+        protocol: 'ws',     // default WebSocket protocol
+        // host: undefined   // let Vite auto-detect
+    },
+
+    // origin: 'http://app.family.test:5174',
+    // hmr: {
+    //   protocol: 'ws',
+    //   clientPort: 5174,
+    //   host: '',
+    // },
+    // cors: {
+    //   origin: true,
+    //   credentials: true,
+    // },
 
   },
   resolve: {
