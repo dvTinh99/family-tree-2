@@ -1,51 +1,171 @@
 <script setup lang="ts">
-import { h, onMounted, ref, nextTick, reactive, computed, onBeforeUnmount } from 'vue'
+import { h, onMounted, ref, nextTick, reactive } from 'vue'
 import { Background } from '@vue-flow/background'
-import { MarkerType, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
-import type { Edge, Node } from '@vue-flow/core'
-import { ControlButton, Controls } from '@vue-flow/controls'
+import { Edge, MarkerType, Node, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import PersonNode from '@/components/nodes/PersonNode.vue'
 import { familyTreeLayout, addSpouseAndRerouteParents } from '@/utils/familyTreeLayout'
 import SpouseNode from '@/components/nodes/SpouseNode.vue'
 import PersonModal from '@/components/PersonModal.vue'
-import { useFamilyStore } from '@/store/family'
-import AnimationEdge from '@/components/edges/AnimationEdge.vue'
-import Icon from '@/components/Icon.vue'
-import SearchPanel from '@/components/SearchPanel.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { nodesInit, edgesInit } from './initial-elements'
-import domtoimage from 'dom-to-image-more'
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useAuthStore } from '@/store/auth'
-import { MiniMap } from '@vue-flow/minimap'
+// import { useFamilyTreeStore } from '@/store/familyTree'
 
 const isLoading = ref(false)
+const nodes = ref<any[]>([
+  {
+    id: '1',
+    type: 'person',
+    label: 'GrandFather',
+    data: { name: 'GrandFather', avatar: 'http://app.family.test/images/grandfather.svg', gender: '1' },
+  },
+  {
+    id: '2',
+    type: 'person',
+    label: 'GrandMother',
+    data: { name: 'GrandMother', avatar: 'http://app.family.test/images/grandmother.svg' },
+  },
+  {
+    id: '10',
+    type: 'person',
+    label: 'GrandFather',
+    data: { name: 'GrandFather', avatar: 'http://app.family.test/images/ong_ngoai.svg' },
+  },
+  {
+    id: '20',
+    type: 'person',
+    label: 'GrandMother',
+    data: { name: 'GrandMother', avatar: 'http://app.family.test/images/ba_ngoai.svg' },
+  },
+  {
+    id: '3',
+    type: 'person',
+    label: 'Father',
+    data: { name: 'Father', avatar: 'http://app.family.test/images/father.svg' },
+  },
+  {
+    id: '4',
+    type: 'person',
+    label: 'Mother',
+    data: { name: 'Mother', avatar: 'http://app.family.test/images/mother.svg' },
+  },
+  {
+    id: '5',
+    type: 'person',
+    label: 'Me',
+    data: { name: 'Me', avatar: 'http://app.family.test/images/me.jpeg' },
+  },
+  {
+    id: '6',
+    type: 'person',
+    label: 'Sister',
+    data: { name: 'Sister', avatar: 'http://app.family.test/images/sister.svg' },
+  },
+])
+const edges = ref<Edge[]>([
+  // {
+  //   id: 'e1',
+  //   source: '1',
+  //   target: '2',
+  //   type: 'step',
+  //   data: { relation: 'spouse' },
+  //   sourceHandle: 'right-source',
+  //   targetHandle: 'left-target',
+  // },
+  {
+    id: 'e11',
+    source: '10',
+    target: '20',
+    type: 'step',
+    data: { relation: 'spouse' },
+    sourceHandle: 'right-source',
+    targetHandle: 'left-target',
+  },
+  // {
+  //   id: 'e2',
+  //   source: '1',
+  //   target: '3',
+  //   type: 'step',
+  //   data: { relation: 'parent' },
+  //   sourceHandle: 'bottom-source',
+  //   targetHandle: 'top-target',
+  // },
+  {
+    id: 'e3',
+    source: '10',
+    target: '4',
+    type: 'step',
+    data: { relation: 'parent' },
+    sourceHandle: 'bottom-source',
+    targetHandle: 'top-target',
+  },
+  {
+    id: 'e4',
+    source: '3',
+    target: '4',
+    type: 'step',
+    data: { relation: 'spouse' },
+    sourceHandle: 'right-source',
+    targetHandle: 'left-target',
+  },
+  {
+    id: 'e5',
+    source: '3',
+    target: '5',
+    type: 'step',
+    data: { relation: 'parent' },
+    sourceHandle: 'bottom-source',
+    targetHandle: 'top-target',
+  },
+  {
+    id: 'e6',
+    source: '3',
+    target: '6',
+    type: 'step',
+    data: { relation: 'parent' },
+    sourceHandle: 'bottom-source',
+    targetHandle: 'top-target',
+  },
+])
 
-const familyStore = useFamilyStore()
-const authStore = useAuthStore()
+// const familyStore = useFamilyTreeStore()
 
-const { fitView, nodesDraggable, setViewport, setNodesSelection, vueFlowRef } = useVueFlow()
+const { fitView } = useVueFlow()
+
+import { useElkLayout } from '@/composables/useElkLayout';
+
+const { layoutGraphElk, isCalculating } = useElkLayout();
+
 async function layoutGraph(direction: string = 'TB') {
-  familyStore.nodesOrigin = nodesInit
-  familyStore.edgesOrigin = edgesInit
+  const { nodes: nodesFormat, edges: edgesFormat } = addSpouseAndRerouteParents(
+    nodes.value,
+    edges.value
+  )
 
+  console.log('nodesFormat', nodesFormat);
+  console.log('edgesFormat', edgesFormat);
+
+  const layoutDage = familyTreeLayout(nodesFormat, edgesFormat)
+  console.log('layoutDage', layoutDage);
+  
+  const layoutElk = await layoutGraphElk(nodesFormat, edgesFormat, {
+    'elk.algorithm': 'layered',                // thuật toán tree/hierarchy
+    'elk.direction': 'DOWN',                   // từ trên xuống
+    'elk.layered.nodePlacement.strategy': 'BRANDES_KOEPF',
+    'elk.layered.spacing.nodeNodeBetweenLayers': '80',
+    'elk.spacing.nodeNode': '50',
+  });
+
+  console.log('layoutElk', layoutElk);
+  nodes.value = layoutElk.nodes
+
+  console.log('nodes.value', nodes.value);
+  
+
+  // nodes.value = nodeGraph
+  edges.value = edgesFormat
   nextTick(() => {
     fitView()
   })
   isLoading.value = false
 }
-
-onBeforeUnmount(() => {
-  familyStore.$reset()
-})
 const relationForm = reactive({
   sourceId: '',
   relationType: '',
@@ -70,71 +190,13 @@ function onAddRelationIntent({ sourceId, relationType }) {
 
 const showPersonModal = ref(false)
 
-function onNodeClick({ event, node }: { event: MouseEvent; node: Node }) {
-  isLoading.value = true
-  familyStore.setNodeSelected(node)
-  isLoading.value = false
+function onNodeClick({ event, node }) {
+  console.log('node clicked', node, event)
+
+  // familyStore.setNodeSelected(node)
 }
 
-/**
- * To update a node or multiple nodes, you can
- * 1. Mutate the node objects *if* you're using `v-model`
- * 2. Use the `updateNode` method (from `useVueFlow`) to update the node(s)
- * 3. Create a new array of nodes and pass it to the `nodes` ref
- */
-function updatePos() {
-  // familyStore.nodes.value = familyStore.nodes.value.map((node) => {
-  //   return {
-  //     ...node,
-  //     position: {
-  //       x: Math.random() * 400,
-  //       y: Math.random() * 400,
-  //     },
-  //   }
-  // })
-}
-
-/**
- * Resets the current viewport transformation (zoom & pan)
- */
-function resetTransform() {
-  setViewport({ x: 0, y: 0, zoom: 1 })
-}
-
-onMounted(() =>
-  nextTick(() => {
-    layoutGraph('TB')
-  })
-)
-
-const exportBlob = async () => {
-  const el = document.getElementsByClassName('vue-flow basic-flow')[0]
-  if (!el) return
-
-  try {
-    // tạo blob từ DOM node
-    const blob = await domtoimage.toBlob(el, {
-      bgcolor: '#fff', // màu nền trắng
-      cacheBust: true, // tránh cache
-    })
-
-    // tạo link tạm để tải
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'export.png' // tên file
-    link.click()
-
-    // (tùy chọn) giải phóng URL blob
-    URL.revokeObjectURL(url)
-  } catch (err) {
-    console.error('Export failed:', err)
-  }
-}
-
-const screenShot = async () => {
-  const canvas = await exportBlob()
-}
+onMounted(() => nextTick(() => layoutGraph('TB')))
 </script>
 
 <template>
@@ -142,75 +204,22 @@ const screenShot = async () => {
     <div v-if="showPersonModal">
       <PersonModal v-model="relationForm" @cancel="() => (showPersonModal = false)" />
     </div>
-    <VueFlow
-      v-model:nodes="familyStore.nodes"
-      v-model:edges="familyStore.edges"
-      :default-edge-options="{ type: 'animation', animated: true }"
-      @node-click="onNodeClick"
-      class="basic-flow"
-      :default-viewport="{ zoom: 1.5 }"
-      :min-zoom="0.2"
-      :max-zoom="4"
-    >
+    <VueFlow :nodes="nodes" :edges="edges" @node-click="onNodeClick">
       <template #node-person="personNodeProps">
         <PersonNode v-bind="personNodeProps" @add-relation="onAddRelationIntent" />
       </template>
       <template #node-spouse>
         <SpouseNode />
       </template>
-      <template #edge-animation="edgeProps">
-        <AnimationEdge
-          :id="edgeProps.id"
-          :source="edgeProps.source"
-          :target="edgeProps.target"
-          :source-x="edgeProps.sourceX"
-          :source-y="edgeProps.sourceY"
-          :targetX="edgeProps.targetX"
-          :targetY="edgeProps.targetY"
-          :source-position="edgeProps.sourcePosition"
-          :target-position="edgeProps.targetPosition"
-          :data="edgeProps.data"
-        />
-      </template>
       <Background />
 
-      <Controls position="top-left">
-        <ControlButton title="Reset Transform" @click="resetTransform">
-          <Icon name="reset" />
-        </ControlButton>
+      <Panel class="process-panel" position="top-right">
+        <div class="layout-panel">
+          <button title="set horizontal layout" @click="layoutGraph('LR')">Horizon</button>
 
-        <ControlButton title="Shuffle Node Positions" @click="updatePos">
-          <Icon name="update" />
-        </ControlButton>
-      </Controls>
-      <Panel position="top-right" class="flex gap-1 items-center">
-        <SearchPanel />
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <!-- <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem> -->
-            <DropdownMenuItem @click="screenShot">Screenshot</DropdownMenuItem>
-            <DropdownMenuItem @click="authStore.logout">Logout</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <button title="set vertical layout" @click="layoutGraph('TB')">vertical</button>
+        </div>
       </Panel>
-
-      <MiniMap />
     </VueFlow>
   </div>
 </template>
-<style scoped>
-.basic-flow .vue-flow__controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-</style>
