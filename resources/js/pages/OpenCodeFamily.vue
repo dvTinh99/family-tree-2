@@ -10,7 +10,7 @@ import { BackgroundVariant } from '@vue-flow/background'
 import PersonNode from '@/components/nodes/PersonNode.vue'
 import ToolbarNode from '@/components/nodes/ToolbarNode.vue'
 import PersonModalSimple from '@/components/PersonModalSimple.vue'
-import dagre from '@dagrejs/dagre'
+import ELK from 'elkjs'
 import * as domToImage from 'dom-to-image-more'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/controls/dist/style.css'
@@ -87,7 +87,7 @@ function createEdges(relList: typeof familyData.relationships): Edge[] {
   }))
 }
 
-function processSpouseAndLayout(nodeList: Node[], edgeList: Edge[]) {
+async function processSpouseAndLayout(nodeList: Node[], edgeList: Edge[]) {
   const newNodes: Node[] = [...nodeList]
   const newEdges: Edge[] = []
   const spousePairs = new Set<string>()
@@ -146,38 +146,53 @@ function processSpouseAndLayout(nodeList: Node[], edgeList: Edge[]) {
     }
   })
 
-  const g = new dagre.graphlib.Graph()
-  g.setDefaultEdgeLabel(() => ({}))
-  g.setGraph({ rankdir: 'TB', ranksep: 120, nodesep: 80 })
-
+  const elk = new ELK()
   const DEFAULT_W = 180
   const DEFAULT_H = 90
 
-  newNodes.forEach((node) => {
-    g.setNode(node.id, {
+  const elkGraph = {
+    id: 'root',
+    layoutOptions: {
+      'elk.algorithm': 'layered',
+      'elk.direction': 'DOWN',
+      'elk.spacing.nodeNode': '80',
+      'elk.layered.spacing.nodeNodeBetweenLayers': '120',
+    },
+    children: newNodes.map((node) => ({
+      id: node.id,
       width: node.data?.width || DEFAULT_W,
       height: node.data?.height || DEFAULT_H,
+    })),
+    edges: newEdges
+      .filter((edge) => {
+        const rel = edge.data?.relation
+        return rel === 'father' || rel === 'mother' || rel === 'child' || rel === 'parent'
+      })
+      .map((edge) => ({
+        id: edge.id,
+        sources: [String(edge.source)],
+        targets: [String(edge.target)],
+      })),
+  }
+
+  const layoutResult = await elk.layout(elkGraph)
+
+  const nodePositions = new Map<string, { x: number; y: number }>()
+  layoutResult.children?.forEach((child) => {
+    nodePositions.set(child.id, {
+      x: child.x || 0,
+      y: child.y || 0,
     })
   })
 
-  newEdges.forEach((edge) => {
-    const rel = edge.data?.relation
-    if (rel === 'father' || rel === 'mother' || rel === 'child' || rel === 'parent') {
-      g.setEdge(String(edge.source), String(edge.target))
-    }
-  })
-
-  dagre.layout(g)
-
   const layoutedNodes = newNodes.map((node) => {
-    const dagreNode = g.node(node.id)
-    if (!dagreNode) {
+    const pos = nodePositions.get(node.id)
+    if (!pos) {
       return { ...node, position: { x: 100, y: 100 } }
     }
-    const dNode = dagreNode as { x: number; y: number }
     return {
       ...node,
-      position: { x: dNode.x || 100, y: dNode.y || 100 },
+      position: { x: pos.x, y: pos.y },
     }
   })
 
@@ -208,11 +223,11 @@ function processSpouseAndLayout(nodeList: Node[], edgeList: Edge[]) {
   return { nodes: layoutedNodes, edges: finalEdges }
 }
 
-function loadTree() {
+async function loadTree() {
   isLoading.value = true
   const vueNodes = createNodes(familyData.people)
   const vueEdges = createEdges(familyData.relationships)
-  const result = processSpouseAndLayout(vueNodes, vueEdges)
+  const result = await processSpouseAndLayout(vueNodes, vueEdges)
   nodeLocal.value = result.nodes
   edgeLocal.value = result.edges
   isLoading.value = false
@@ -276,8 +291,8 @@ function onModalAdded(data: {
   addNodes(newNode)
   addEdges(newEdge)
 
-  setTimeout(() => {
-    const result = processSpouseAndLayout(nodes.value, edges.value)
+  setTimeout(async () => {
+    const result = await processSpouseAndLayout(nodes.value, edges.value)
     nodeLocal.value = result.nodes
     edgeLocal.value = result.edges
     setTimeout(() => fitView({ padding: 0.2 }), 100)
